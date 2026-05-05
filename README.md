@@ -66,6 +66,12 @@ Run all Phase 0 validation checks:
 npm run validate
 ```
 
+Run tests:
+
+```bash
+npm test
+```
+
 ## Prisma Commands
 
 Generate Prisma Client:
@@ -98,6 +104,13 @@ Open Prisma Studio:
 npm run prisma:studio
 ```
 
+Seed the Super Admin user:
+
+```bash
+$env:SUPER_ADMIN_PASSWORD="Use-A-Strong-Password1!"
+npm run seed:super-admin
+```
+
 ## Environment Variables
 
 Required variables are documented in `.env.example`:
@@ -106,6 +119,10 @@ Required variables are documented in `.env.example`:
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/plus?schema=public"
 NEXTAUTH_SECRET="replace-with-a-long-random-secret"
 NEXTAUTH_URL="http://localhost:3000"
+SUPER_ADMIN_USERNAME="superadmin"
+SUPER_ADMIN_PASSWORD="replace-with-a-strong-local-seed-password"
+SUPER_ADMIN_NAME="Super Admin"
+SUPER_ADMIN_EMAIL="superadmin@example.com"
 ```
 
 Authentication is implemented in Phase 1. The `NEXTAUTH_*` variables are included now so the environment structure is ready.
@@ -121,3 +138,13 @@ npm run prisma:validate
 npm run build
 npm run validate
 ```
+
+## Phase 1 Auth
+
+Phase 1 uses a custom credentials flow with database-backed sessions:
+
+- Passwords are hashed with async Node.js `scrypt`.
+- Session cookies are HTTP-only and store only a random token.
+- The database stores only the SHA-256 hash of each session token.
+- Blocked account statuses cannot log in.
+- Users with pending setup or forced password change are redirected to `/first-login`.

@@ -7,13 +7,16 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "prisma generate && tsc --noEmit",
-    "validate": "npm run lint && npm run typecheck && npm run prisma:validate && npm run build",
+    "validate": "npm run lint && npm test && npm run typecheck && npm run prisma:validate && npm run build",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:format": "prisma format",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "seed:super-admin": "prisma generate && tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.8.0",
@@ -27,17 +30,21 @@
     "pg": "8.20.0",
     "react": "19.2.5",
     "react-dom": "19.2.5",
-    "tailwind-merge": "3.5.0"
+    "tailwind-merge": "3.5.0",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.2.4",
     "@types/node": "25.6.0",
+    "@types/pg": "8.20.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.4",
     "prisma": "7.8.0",
     "tailwindcss": "4.2.4",
-    "typescript": "6.0.3"
+    "tsx": "4.21.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.5"
   }
 }

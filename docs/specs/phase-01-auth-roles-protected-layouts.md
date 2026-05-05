@@ -65,7 +65,7 @@ Missing for Phase 1:
 - A custom credentials flow is acceptable for Phase 1 and avoids Auth.js adapter/version complexity.
 - Session storage is database-backed and keyed by an HTTP-only cookie.
 - Usernames are the primary login identifier; email can be added to user records but is optional for login.
-- The seed Super Admin is created from environment variables and starts as `ACTIVE`.
+- The seed Super Admin is created from environment variables, starts as `ACTIVE`, and is forced to change password on first login by default.
 - First-login setup is implemented for users with `PENDING_SETUP` or `mustChangePassword = true`.
 - Setup links are token-based, but Phase 1 can also allow an authenticated pending user to complete setup through `/first-login`.
 
@@ -199,6 +199,8 @@ Use Zod schemas:
   - token optional when user is already authenticated
   - password must satisfy the Phase 1 password policy
   - confirm password must match
+  - password cannot equal the username
+  - password cannot reuse the current authenticated password when a current hash exists
 
 ## Notifications
 

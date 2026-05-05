@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { verifyPassword } from "../auth/password";
 
 const strongPasswordSchema = z
   .string()
@@ -31,3 +32,52 @@ export const firstLoginSchema = z
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type FirstLoginInput = z.infer<typeof firstLoginSchema>;
+
+type FirstLoginContext = {
+  username: string;
+  currentPasswordHash?: string | null;
+};
+
+export async function validateFirstLoginInput(
+  input: FirstLoginInput,
+  context: FirstLoginContext,
+) {
+  const parsed = firstLoginSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return parsed;
+  }
+
+  if (parsed.data.password.toLowerCase() === context.username.toLowerCase()) {
+    return {
+      success: false as const,
+      error: new z.ZodError([
+        {
+          code: "custom",
+          message: "Password cannot match username.",
+          path: ["password"],
+          input: parsed.data.password,
+        },
+      ]),
+    };
+  }
+
+  if (
+    context.currentPasswordHash &&
+    await verifyPassword(parsed.data.password, context.currentPasswordHash)
+  ) {
+    return {
+      success: false as const,
+      error: new z.ZodError([
+        {
+          code: "custom",
+          message: "Password cannot reuse the current password.",
+          path: ["password"],
+          input: parsed.data.password,
+        },
+      ]),
+    };
+  }
+
+  return parsed;
+}

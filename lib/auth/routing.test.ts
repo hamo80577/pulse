@@ -40,7 +40,16 @@ describe("auth routing", () => {
   it("allows users to access only their own dashboard route", () => {
     expect(canAccessPath("PICKER", "/picker")).toBe(true);
     expect(canAccessPath("PICKER", "/champ")).toBe(false);
+    expect(canAccessPath("CHAMP", "/admin")).toBe(false);
+    expect(canAccessPath("PICKER", "/admin")).toBe(false);
+  });
+
+  it("allows Admin and Super Admin access to admin route families", () => {
+    expect(canAccessPath("SUPER_ADMIN", "/admin")).toBe(true);
+    expect(canAccessPath("SUPER_ADMIN", "/admin/organization")).toBe(true);
     expect(canAccessPath("SUPER_ADMIN", "/super-admin")).toBe(true);
-    expect(canAccessPath("SUPER_ADMIN", "/admin")).toBe(false);
+    expect(canAccessPath("ADMIN", "/admin")).toBe(true);
+    expect(canAccessPath("ADMIN", "/admin/organization")).toBe(true);
+    expect(canAccessPath("ADMIN", "/super-admin")).toBe(false);
   });
 });

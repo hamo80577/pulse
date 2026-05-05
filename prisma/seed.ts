@@ -1,49 +1,71 @@
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client";
 import { hashPassword } from "../lib/auth/password";
 
-const username = process.env.SUPER_ADMIN_USERNAME ?? "superadmin";
-const password = process.env.SUPER_ADMIN_PASSWORD;
-const name = process.env.SUPER_ADMIN_NAME ?? "Super Admin";
-const email = process.env.SUPER_ADMIN_EMAIL ?? "superadmin@example.com";
+type SuperAdminSeedInput = {
+  username: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  forcePasswordChange?: boolean;
+};
 
-if (!password) {
-  throw new Error("SUPER_ADMIN_PASSWORD is required to seed the Super Admin user.");
-}
+export function buildSuperAdminSeedData(input: SuperAdminSeedInput) {
+  const mustChangePassword = input.forcePasswordChange ?? true;
 
-const superAdminPassword = password;
-
-const adapter = new PrismaPg({
-  connectionString:
-    process.env.DATABASE_URL ??
-    "postgresql://postgres:postgres@localhost:5432/plus?schema=public",
-});
-
-const prisma = new PrismaClient({ adapter });
-
-async function main() {
-  const passwordHash = await hashPassword(superAdminPassword);
-  const user = await prisma.user.upsert({
-    where: { username },
+  return {
+    where: { username: input.username },
     update: {
-      name,
-      email,
-      role: "SUPER_ADMIN",
-      status: "ACTIVE",
-      passwordHash,
-      mustChangePassword: false,
+      name: input.name,
+      email: input.email,
+      role: "SUPER_ADMIN" as const,
+      status: "ACTIVE" as const,
+      passwordHash: input.passwordHash,
+      mustChangePassword,
     },
     create: {
-      name,
-      username,
-      email,
-      role: "SUPER_ADMIN",
-      status: "ACTIVE",
-      passwordHash,
-      mustChangePassword: false,
+      name: input.name,
+      username: input.username,
+      email: input.email,
+      role: "SUPER_ADMIN" as const,
+      status: "ACTIVE" as const,
+      passwordHash: input.passwordHash,
+      mustChangePassword,
     },
+  };
+}
+
+async function main() {
+  const [{ PrismaPg }, { PrismaClient }] = await Promise.all([
+    import("@prisma/adapter-pg"),
+    import("../generated/prisma/client"),
+  ]);
+  const username = process.env.SUPER_ADMIN_USERNAME ?? "superadmin";
+  const password = process.env.SUPER_ADMIN_PASSWORD;
+  const name = process.env.SUPER_ADMIN_NAME ?? "Super Admin";
+  const email = process.env.SUPER_ADMIN_EMAIL ?? "superadmin@example.com";
+  const forcePasswordChange = process.env.SUPER_ADMIN_FORCE_PASSWORD_CHANGE !== "false";
+
+  if (!password) {
+    throw new Error("SUPER_ADMIN_PASSWORD is required to seed the Super Admin user.");
+  }
+
+  const adapter = new PrismaPg({
+    connectionString:
+      process.env.DATABASE_URL ??
+      "postgresql://postgres:postgres@localhost:5432/plus?schema=public",
   });
+
+  const prisma = new PrismaClient({ adapter });
+  const passwordHash = await hashPassword(password);
+  const user = await prisma.user.upsert(
+    buildSuperAdminSeedData({
+      username,
+      name,
+      email,
+      passwordHash,
+      forcePasswordChange,
+    }),
+  );
 
   await prisma.auditLog.create({
     data: {
@@ -55,14 +77,12 @@ async function main() {
   });
 
   console.log(`Seeded Super Admin user: ${username}`);
+  await prisma.$disconnect();
 }
 
-main()
-  .finally(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (error) => {
+if (process.env.VITEST !== "true") {
+  main().catch((error) => {
     console.error(error);
-    await prisma.$disconnect();
     process.exit(1);
   });
+}

@@ -122,7 +122,7 @@ export async function requireSession() {
 export async function requireRole(role: Role, pathname: string) {
   const session = await requireSession();
 
-  if (!canAccessPath(role, pathname) || session.user.role !== role) {
+  if (!canAccessPath(session.user.role, pathname) || !canAccessPath(role, pathname)) {
     redirect("/access-denied");
   }
 
@@ -134,6 +134,11 @@ export async function redirectAuthenticatedUser() {
 
   if (!session) {
     return;
+  }
+
+  if (isBlockedStatus(session.user.status)) {
+    await deleteCurrentSession();
+    redirect("/login");
   }
 
   if (requiresFirstLogin(session.user)) {

@@ -111,6 +111,8 @@ $env:SUPER_ADMIN_PASSWORD="Use-A-Strong-Password1!"
 npm run seed:super-admin
 ```
 
+The seeded Super Admin is `ACTIVE` and is forced to change password on first login by default. For local-only development, set `SUPER_ADMIN_FORCE_PASSWORD_CHANGE="false"` before running the seed command.
+
 ## Environment Variables
 
 Required variables are documented in `.env.example`:
@@ -123,6 +125,7 @@ SUPER_ADMIN_USERNAME="superadmin"
 SUPER_ADMIN_PASSWORD="replace-with-a-strong-local-seed-password"
 SUPER_ADMIN_NAME="Super Admin"
 SUPER_ADMIN_EMAIL="superadmin@example.com"
+SUPER_ADMIN_FORCE_PASSWORD_CHANGE="true"
 ```
 
 Authentication is implemented in Phase 1. The `NEXTAUTH_*` variables are included now so the environment structure is ready.
@@ -148,3 +151,4 @@ Phase 1 uses a custom credentials flow with database-backed sessions:
 - The database stores only the SHA-256 hash of each session token.
 - Blocked account statuses cannot log in.
 - Users with pending setup or forced password change are redirected to `/first-login`.
+- Admin can access `/admin` and nested admin routes; Super Admin can access all protected dashboard route families.

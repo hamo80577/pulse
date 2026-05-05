@@ -33,6 +33,14 @@ export function requiresFirstLogin(
 }
 
 export function canAccessPath(role: Role, pathname: string) {
+  if (role === "SUPER_ADMIN") {
+    return dashboardPaths.some((path) => isPathInRouteFamily(pathname, path));
+  }
+
+  if (role === "ADMIN") {
+    return isPathInRouteFamily(pathname, "/admin");
+  }
+
   return pathname === getDashboardPathForRole(role);
 }
 
@@ -43,3 +51,7 @@ export function getRoleFromDashboardPath(pathname: string): Role | null {
 }
 
 export const dashboardPaths = Object.values(roleDashboardPaths);
+
+function isPathInRouteFamily(pathname: string, routeRoot: string) {
+  return pathname === routeRoot || pathname.startsWith(`${routeRoot}/`);
+}

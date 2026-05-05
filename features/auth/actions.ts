@@ -11,7 +11,7 @@ import {
 } from "@/lib/auth/session";
 import { hashToken } from "@/lib/auth/tokens";
 import { prisma } from "@/lib/db/prisma";
-import { firstLoginSchema, loginSchema } from "@/lib/validation/auth";
+import { loginSchema, validateFirstLoginInput } from "@/lib/validation/auth";
 
 export type AuthActionState = {
   error?: string;
@@ -113,18 +113,14 @@ export async function completeFirstLoginAction(
   _previousState: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
-  const parsed = firstLoginSchema.safeParse({
+  const input = {
     token: getFormValue(formData, "token") || undefined,
     password: getFormValue(formData, "password"),
     confirmPassword: getFormValue(formData, "confirmPassword"),
-  });
-
-  if (!parsed.success) {
-    return { error: "Enter a strong matching password." };
-  }
+  };
 
   const session = await getCurrentSession();
-  const token = parsed.data.token;
+  const token = input.token;
   const setupToken = token
     ? await prisma.setupToken.findUnique({
         where: { tokenHash: hashToken(token) },
@@ -158,6 +154,15 @@ export async function completeFirstLoginAction(
 
   if (isBlockedStatus(user.status)) {
     return { error: "This account cannot access the system." };
+  }
+
+  const parsed = await validateFirstLoginInput(input, {
+    username: user.username,
+    currentPasswordHash: user.passwordHash,
+  });
+
+  if (!parsed.success) {
+    return { error: "Enter a valid new password." };
   }
 
   const passwordHash = await hashPassword(parsed.data.password);

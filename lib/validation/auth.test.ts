@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { firstLoginSchema, loginSchema } from "./auth";
+import { hashPassword } from "../auth/password";
+import {
+  firstLoginSchema,
+  loginSchema,
+  validateFirstLoginInput,
+} from "./auth";
 
 describe("auth validation", () => {
   it("requires login credentials", () => {
@@ -45,5 +50,37 @@ describe("auth validation", () => {
     });
 
     expect(result.success).toBe(true);
+  });
+
+  it("rejects a first-login password that equals the username", async () => {
+    const result = await validateFirstLoginInput(
+      {
+        token: "setup-token",
+        password: "Superadmin1!",
+        confirmPassword: "Superadmin1!",
+      },
+      {
+        username: "superadmin1!",
+      },
+    );
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects reusing the current authenticated password", async () => {
+    const currentPasswordHash = await hashPassword("CurrentPass1!");
+    const result = await validateFirstLoginInput(
+      {
+        token: "setup-token",
+        password: "CurrentPass1!",
+        confirmPassword: "CurrentPass1!",
+      },
+      {
+        username: "superadmin",
+        currentPasswordHash,
+      },
+    );
+
+    expect(result.success).toBe(false);
   });
 });

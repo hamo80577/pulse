@@ -12,7 +12,7 @@ import {
   requiresFirstLogin,
 } from "./routing";
 
-const sessionCookieName = "plus_session";
+const sessionCookieName = "pulse_session";
 const sessionDurationMs = 1000 * 60 * 60 * 24 * 7;
 
 export type CurrentSession = {
@@ -129,10 +129,18 @@ export async function requireRole(role: Role, pathname: string) {
   return session;
 }
 
-export async function redirectAuthenticatedUser() {
+export async function redirectAuthenticatedUser({
+  unauthenticatedTo,
+}: {
+  unauthenticatedTo?: string;
+} = {}) {
   const session = await getCurrentSession();
 
   if (!session) {
+    if (unauthenticatedTo) {
+      redirect(unauthenticatedTo);
+    }
+
     return;
   }
 

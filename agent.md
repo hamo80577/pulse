@@ -1,10 +1,10 @@
-# agent.md — Plus Project Codex Operating Guide
+# agent.md — Pulse Project Codex Operating Guide
 
 ## 0. Project Identity
 
-Project name: **Plus**
+Project name: **Pulse**
 
-Plus is an internal operations web application for managing, tracking, and controlling the workforce structure around **Pickers** and **Champs** across partner chains and branches.
+Pulse is an internal operations web application for managing, tracking, and controlling the workforce structure around **Pickers** and **Champs** across partner chains and branches.
 
 Domain definitions:
 
@@ -201,7 +201,7 @@ Final report must include:
 
 ## 4. Product Principles
 
-Plus must optimize for:
+Pulse must optimize for:
 
 - Operational clarity
 - Controlled approvals

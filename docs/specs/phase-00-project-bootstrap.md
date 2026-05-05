@@ -2,7 +2,7 @@
 
 ## Goal
 
-Create a fresh, in-place Next.js foundation for Plus using npm, TypeScript, Tailwind CSS, Prisma, PostgreSQL configuration, shadcn/ui-style components, and a simple internal operations app shell.
+Create a fresh, in-place Next.js foundation for Pulse using npm, TypeScript, Tailwind CSS, Prisma, PostgreSQL configuration, shadcn/ui-style components, and a simple internal operations app shell.
 
 ## Current State
 
@@ -71,7 +71,7 @@ This keeps Phase 0 focused on infrastructure and avoids pretending later domain 
 
 ## Routes and Pages
 
-- `/` — initial app shell landing screen for Plus with links/context for future role dashboards.
+- `/` — initial app shell landing screen for Pulse with links/context for future role dashboards.
 - `/docs` — documentation index pointing to local planning files.
 
 No protected routes are implemented in Phase 0.
@@ -122,7 +122,7 @@ No audit logging is implemented in Phase 0 because there are no business mutatio
 Create `.env.example`:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/plus?schema=public"
+DATABASE_URL="postgresql://pulse_app:replace-with-a-local-password@localhost:5433/pulse_local?schema=public"
 NEXTAUTH_SECRET="replace-with-a-long-random-secret"
 NEXTAUTH_URL="http://localhost:3000"
 ```

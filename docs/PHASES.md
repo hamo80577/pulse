@@ -1,4 +1,4 @@
-# Plus — Phase Execution Plan for Codex
+# Pulse — Phase Execution Plan for Codex
 
 ## 0. Master Rule
 
@@ -909,7 +909,7 @@ docs/specs/phase-12-hardening-production-readiness.md
 Use this prompt when asking Codex to execute a phase:
 
 ```text
-You are working on the Plus project.
+You are working on the Pulse project.
 
 Before writing any implementation code, read agent.md, docs/BLUEPRINT_SITEMAP.md, docs/PHASES.md, package.json, the app structure, existing Prisma schema/migrations, auth files, validation files, and any relevant feature modules.
 

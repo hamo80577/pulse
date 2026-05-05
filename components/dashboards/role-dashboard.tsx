@@ -1,5 +1,5 @@
-import { ClipboardList, LockKeyhole, Route, UserRound } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ShieldCheck } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Role, SessionUser } from "@/lib/auth/types";
 
 const roleTitles: Record<Role, string> = {
@@ -13,28 +13,24 @@ const roleTitles: Record<Role, string> = {
   SUPER_ADMIN: "Super Admin Dashboard",
 };
 
-const foundationItems = [
-  {
-    title: "Authenticated Session",
-    description: "This page is rendered only after a valid server-side session check.",
-    icon: LockKeyhole,
-  },
-  {
-    title: "Role Route",
-    description: "The user can access only the dashboard route assigned to their role.",
-    icon: Route,
-  },
-  {
-    title: "Account Status",
-    description: "Blocked statuses and first-login setup rules are enforced before render.",
-    icon: UserRound,
-  },
-  {
-    title: "Next Phase Data",
-    description: "Organization, approvals, and operational records begin in later phases.",
-    icon: ClipboardList,
-  },
-];
+const roleDescriptions: Record<Role, string> = {
+  PICKER:
+    "Your Pulse workspace for profile, requests, and branch visibility. Performance metrics will be added after KPI definitions are finalized.",
+  CHAMP:
+    "Manage your assigned picker team, requests, and branch operations. Team data begins in the organization phase.",
+  AREA_MANAGER:
+    "Review scoped branches, champs, and operational requests once organization data is connected.",
+  WORKFORCE_MANAGER:
+    "Coordinate workforce visibility and staffing workflows as Pulse modules are activated.",
+  OPERATIONS_MANAGER:
+    "Monitor operational access and request workflows as Pulse modules are activated.",
+  SENIOR_OPERATIONS_MANAGER:
+    "Review operational governance and reporting access once Pulse reporting modules are connected.",
+  ADMIN:
+    "Manage users, access, organization setup, and approval operations as modules are activated.",
+  SUPER_ADMIN:
+    "Full Pulse system control for access, configuration, audit, and operational governance.",
+};
 
 export function RoleDashboard({ role, user }: { role: Role; user: SessionUser }) {
   return (
@@ -44,24 +40,26 @@ export function RoleDashboard({ role, user }: { role: Role; user: SessionUser })
           {roleTitles[role]}
         </h1>
         <p className="max-w-2xl text-base leading-7 text-muted-foreground">
-          Welcome, {user.name}. Phase 1 confirms authentication, role redirects,
-          and protected layout behavior before business modules are added.
+          Welcome, {user.name}. {roleDescriptions[role]}
         </p>
       </section>
-      <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {foundationItems.map((item) => (
-          <Card key={item.title}>
-            <CardHeader>
-              <item.icon aria-hidden="true" className="text-primary" />
-              <CardTitle>{item.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-6 text-muted-foreground">
-                {item.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+      <section>
+        <Card>
+          <CardHeader>
+            <ShieldCheck aria-hidden="true" className="text-primary" />
+            <CardTitle>Access Ready</CardTitle>
+            <CardDescription>
+              This workspace is protected by Pulse authentication and role-based
+              routing.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-6 text-muted-foreground">
+              Operational records will appear only after their owning modules are
+              implemented and connected.
+            </p>
+          </CardContent>
+        </Card>
       </section>
     </main>
   );

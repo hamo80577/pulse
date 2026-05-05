@@ -2,7 +2,7 @@
 
 ## Goal
 
-Implement secure authentication and role-based access foundations for Plus.
+Implement secure authentication and role-based access foundations for Pulse.
 
 Phase 1 must allow a seeded Super Admin to log in, enforce account status rules, force first-login password setup when required, protect dashboard routes server-side, and redirect authenticated users to the dashboard matching their role.
 

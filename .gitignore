@@ -12,6 +12,7 @@ dist/
 # environment
 .env
 .env*.local
+LOCAL_CREDENTIALS.md
 
 # prisma
 prisma/dev.db

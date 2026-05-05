@@ -1,4 +1,4 @@
-# Plus Documentation
+# Pulse Documentation
 
 Project roadmap and phase planning live here.
 

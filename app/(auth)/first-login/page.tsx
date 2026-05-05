@@ -23,7 +23,7 @@ export default async function FirstLoginPage({
     <main className="flex min-h-screen items-center justify-center bg-background px-6 py-10">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Set your password</CardTitle>
+          <CardTitle>Set your Pulse password</CardTitle>
           <CardDescription>
             Create a strong password before continuing to your dashboard.
           </CardDescription>

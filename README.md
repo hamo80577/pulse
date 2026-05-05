@@ -1,6 +1,6 @@
-# Plus
+# Pulse
 
-Plus is an internal operations platform for managing Pickers, Champs, managers, branches, approvals, notifications, and future KPI reporting.
+Pulse is an internal operations platform for managing Pickers, Champs, managers, branches, approvals, notifications, and future KPI reporting.
 
 ## Stack
 
@@ -118,7 +118,7 @@ The seeded Super Admin is `ACTIVE` and is forced to change password on first log
 Required variables are documented in `.env.example`:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/plus?schema=public"
+DATABASE_URL="postgresql://pulse_app:replace-with-a-local-password@localhost:5433/pulse_local?schema=public"
 NEXTAUTH_SECRET="replace-with-a-long-random-secret"
 NEXTAUTH_URL="http://localhost:3000"
 SUPER_ADMIN_USERNAME="superadmin"

@@ -52,7 +52,7 @@ async function main() {
   const adapter = new PrismaPg({
     connectionString:
       process.env.DATABASE_URL ??
-      "postgresql://postgres:postgres@localhost:5432/plus?schema=public",
+      "postgresql://pulse_app:replace-with-a-local-password@localhost:5433/pulse_local?schema=public",
   });
 
   const prisma = new PrismaClient({ adapter });

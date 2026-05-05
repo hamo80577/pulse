@@ -9,6 +9,6 @@ export default defineConfig({
   datasource: {
     url:
       process.env.DATABASE_URL ??
-      "postgresql://postgres:postgres@localhost:5432/plus?schema=public",
+      "postgresql://pulse_app:replace-with-a-local-password@localhost:5433/pulse_local?schema=public",
   },
 });

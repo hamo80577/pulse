@@ -7,11 +7,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="border-b bg-card">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
           <Link className="text-lg font-semibold tracking-normal" href="/">
-            Plus
+            Pulse
           </Link>
           <nav aria-label="Primary" className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-            <Link className="transition-colors hover:text-foreground" href="/">
-              Foundation
+            <Link className="transition-colors hover:text-foreground" href="/login">
+              Sign in
             </Link>
             <Link className="transition-colors hover:text-foreground" href="/docs">
               Docs

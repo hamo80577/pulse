@@ -1,8 +1,8 @@
-# Plus — Blueprint and Sitemap
+# Pulse — Blueprint and Sitemap
 
 ## 1. Product Summary
 
-**Plus** is an internal operations web application that manages the workforce structure of Pickers and Champs across partner chains and branches.
+**Pulse** is an internal operations web application that manages the workforce structure of Pickers and Champs across partner chains and branches.
 
 It combines:
 

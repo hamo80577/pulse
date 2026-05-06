@@ -56,8 +56,8 @@ export function getAdminNavItems(role: Role): NavItem[] {
     },
     {
       label: "Settings",
+      href: role === "SUPER_ADMIN" ? "/super-admin/settings" : "/admin/settings",
       icon: "settings",
-      comingSoon: true,
     },
   ];
 }

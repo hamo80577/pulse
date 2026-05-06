@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { defaultLanguage } from "@/lib/i18n/config";
+import { getDirection } from "@/lib/i18n/direction";
+import { defaultThemePreference } from "@/lib/preferences/defaults";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      data-theme={defaultThemePreference}
+      dir={getDirection(defaultLanguage)}
+      lang={defaultLanguage}
+    >
       <body>{children}</body>
     </html>
   );

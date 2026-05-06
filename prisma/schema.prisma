@@ -123,13 +123,14 @@ model AuditLog {
 }
 
 model Chain {
-  id        String             @id @default(cuid())
-  name      String
-  code      String?
-  status    OrganizationStatus @default(ACTIVE)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  branches  Branch[]
+  id                 String             @id @default(cuid())
+  name               String
+  code               String?
+  orderSystemChainId String?            @unique
+  status             OrganizationStatus @default(ACTIVE)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  branches           Branch[]
 
   @@unique([name])
   @@unique([code])
@@ -137,16 +138,17 @@ model Chain {
 }
 
 model Branch {
-  id          String             @id @default(cuid())
-  chainId     String
-  name        String
-  code        String?
-  address     String?
-  status      OrganizationStatus @default(ACTIVE)
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  chain       Chain              @relation(fields: [chainId], references: [id], onDelete: Restrict)
-  assignments BranchAssignment[]
+  id                  String             @id @default(cuid())
+  chainId             String
+  name                String
+  code                String?
+  orderSystemBranchId String?            @unique
+  address             String?
+  status              OrganizationStatus @default(ACTIVE)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  chain               Chain              @relation(fields: [chainId], references: [id], onDelete: Restrict)
+  assignments         BranchAssignment[]
 
   @@unique([chainId, name])
   @@unique([code])

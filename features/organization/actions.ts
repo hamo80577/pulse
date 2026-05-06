@@ -66,6 +66,7 @@ export async function createChainAction(
   const parsed = chainInputSchema.safeParse({
     name: getFormValue(formData, "name"),
     code: getFormValue(formData, "code"),
+    orderSystemChainId: getFormValue(formData, "orderSystemChainId"),
     status: getFormValue(formData, "status") || "ACTIVE",
   });
 
@@ -89,7 +90,7 @@ export async function createChainAction(
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: "A chain with this name or code already exists." };
+      return { error: "A chain with this name, code, or order-system ID already exists." };
     }
 
     throw error;
@@ -108,6 +109,7 @@ export async function updateChainAction(
   const parsed = chainInputSchema.safeParse({
     name: getFormValue(formData, "name"),
     code: getFormValue(formData, "code"),
+    orderSystemChainId: getFormValue(formData, "orderSystemChainId"),
     status: getFormValue(formData, "status") || "ACTIVE",
   });
 
@@ -136,7 +138,7 @@ export async function updateChainAction(
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: "A chain with this name or code already exists." };
+      return { error: "A chain with this name, code, or order-system ID already exists." };
     }
 
     throw error;
@@ -155,6 +157,7 @@ export async function createBranchAction(
     chainId: getFormValue(formData, "chainId"),
     name: getFormValue(formData, "name"),
     code: getFormValue(formData, "code"),
+    orderSystemBranchId: getFormValue(formData, "orderSystemBranchId"),
     address: getFormValue(formData, "address"),
     status: getFormValue(formData, "status") || "ACTIVE",
   });
@@ -188,7 +191,7 @@ export async function createBranchAction(
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: "A branch with this name or code already exists." };
+      return { error: "A branch with this name, code, or order-system ID already exists." };
     }
 
     throw error;
@@ -208,6 +211,7 @@ export async function updateBranchAction(
     chainId: getFormValue(formData, "chainId"),
     name: getFormValue(formData, "name"),
     code: getFormValue(formData, "code"),
+    orderSystemBranchId: getFormValue(formData, "orderSystemBranchId"),
     address: getFormValue(formData, "address"),
     status: getFormValue(formData, "status") || "ACTIVE",
   });
@@ -246,7 +250,7 @@ export async function updateBranchAction(
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: "A branch with this name or code already exists." };
+      return { error: "A branch with this name, code, or order-system ID already exists." };
     }
 
     throw error;

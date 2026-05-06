@@ -14,6 +14,7 @@ type ChainFormProps = {
     id: string;
     name: string;
     code: string | null;
+    orderSystemChainId: string | null;
     status: string;
   };
 };
@@ -43,6 +44,15 @@ export function ChainForm({ chain }: ChainFormProps) {
           defaultValue={chain?.code ?? ""}
           id="code"
           name="code"
+          placeholder="Optional"
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="orderSystemChainId">Order System Chain ID</Label>
+        <Input
+          defaultValue={chain?.orderSystemChainId ?? ""}
+          id="orderSystemChainId"
+          name="orderSystemChainId"
           placeholder="Optional"
         />
       </div>

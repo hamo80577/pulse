@@ -34,7 +34,11 @@ export default async function ChainDetailPage({
           <Link href="/admin/organization/chains">Back to chains</Link>
         </Button>
           }
-          description={chain.code ?? "No code"}
+          description={
+            chain.orderSystemChainId
+              ? `${chain.code ?? "No code"} / Order ID: ${chain.orderSystemChainId}`
+              : chain.code ?? "No code"
+          }
           title={chain.name}
         />
         <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">

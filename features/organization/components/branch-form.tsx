@@ -19,6 +19,7 @@ type BranchFormProps = {
     chainId: string;
     name: string;
     code: string | null;
+    orderSystemBranchId: string | null;
     address: string | null;
     status: string;
   };
@@ -75,6 +76,15 @@ export function BranchForm({ chains, branch }: BranchFormProps) {
           defaultValue={branch?.code ?? ""}
           id="code"
           name="code"
+          placeholder="Optional"
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="orderSystemBranchId">Order System Branch ID</Label>
+        <Input
+          defaultValue={branch?.orderSystemBranchId ?? ""}
+          id="orderSystemBranchId"
+          name="orderSystemBranchId"
           placeholder="Optional"
         />
       </div>

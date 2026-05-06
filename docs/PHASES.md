@@ -309,10 +309,12 @@ Branch:
 
 - `orderSystemBranchId` nullable unique
 
-User settings / preferences foundation, if implemented in this phase:
+Preference foundation values, without persistence in this phase:
 
-- preferredLanguage: `en` / `ar`
-- preferredTheme: `light` / `dark` / `system`
+- preferredLanguage values: `en` / `ar`
+- preferredTheme values: `light` / `dark` / `system`
+
+Do not add a persisted user preference model in Phase 2.6. Persistence belongs to Phase 9.5 when user settings exist.
 
 ### External ID Rules
 
@@ -373,6 +375,7 @@ Audit changes to:
 - Branch can store order-system branch ID.
 - External IDs are validated and unique when provided.
 - Pulse has a clear localization/theme foundation.
+- Settings placeholder routes exist and clearly state that preferences are not persisted yet.
 - No import center is implemented yet.
 - No fake KPI data exists.
 - Spec file exists.

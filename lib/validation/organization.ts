@@ -15,6 +15,12 @@ const optionalNormalizedCode = z
   .transform((value) => value.toUpperCase())
   .optional()
   .or(z.literal("").transform(() => undefined));
+const optionalExternalId = z
+  .string()
+  .trim()
+  .transform((value) => (value.length > 0 ? value : null))
+  .optional()
+  .or(z.literal("").transform(() => null));
 
 const dateString = z.string().trim().refine((value) => !Number.isNaN(Date.parse(value)), {
   message: "Enter a valid date.",
@@ -23,6 +29,7 @@ const dateString = z.string().trim().refine((value) => !Number.isNaN(Date.parse(
 export const chainInputSchema = z.object({
   name: requiredTrimmedString,
   code: optionalNormalizedCode,
+  orderSystemChainId: optionalExternalId,
   status: z.enum(organizationStatuses).default("ACTIVE"),
 });
 
@@ -30,6 +37,7 @@ export const branchInputSchema = z.object({
   chainId: requiredTrimmedString,
   name: requiredTrimmedString,
   code: optionalNormalizedCode,
+  orderSystemBranchId: optionalExternalId,
   address: z.string().trim().optional().or(z.literal("").transform(() => undefined)),
   status: z.enum(organizationStatuses).default("ACTIVE"),
 });

@@ -11,6 +11,7 @@ describe("organization validation", () => {
     const parsed = chainInputSchema.safeParse({
       name: "  North Cairo  ",
       code: " nc ",
+      orderSystemChainId: " chain-42 ",
       status: "ACTIVE",
     });
 
@@ -18,8 +19,21 @@ describe("organization validation", () => {
     expect(parsed.success ? parsed.data : null).toEqual({
       name: "North Cairo",
       code: "NC",
+      orderSystemChainId: "chain-42",
       status: "ACTIVE",
     });
+  });
+
+  it("normalizes empty chain external IDs to null", () => {
+    const parsed = chainInputSchema.safeParse({
+      name: "North Cairo",
+      code: "",
+      orderSystemChainId: "   ",
+      status: "ACTIVE",
+    });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success ? parsed.data.orderSystemChainId : "failed").toBeNull();
   });
 
   it("rejects a branch without a chain", () => {
@@ -30,6 +44,30 @@ describe("organization validation", () => {
     });
 
     expect(parsed.success).toBe(false);
+  });
+
+  it("accepts and trims branch external IDs", () => {
+    const parsed = branchInputSchema.safeParse({
+      name: "Branch A",
+      chainId: "chain_1",
+      orderSystemBranchId: " branch-99 ",
+      status: "ACTIVE",
+    });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success ? parsed.data.orderSystemBranchId : null).toBe("branch-99");
+  });
+
+  it("normalizes empty branch external IDs to null", () => {
+    const parsed = branchInputSchema.safeParse({
+      name: "Branch A",
+      chainId: "chain_1",
+      orderSystemBranchId: "",
+      status: "ACTIVE",
+    });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success ? parsed.data.orderSystemBranchId : "failed").toBeNull();
   });
 
   it("accepts picker and champ branch assignments only", () => {

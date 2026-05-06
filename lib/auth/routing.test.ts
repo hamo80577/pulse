@@ -47,9 +47,13 @@ describe("auth routing", () => {
   it("allows Admin and Super Admin access to admin route families", () => {
     expect(canAccessPath("SUPER_ADMIN", "/admin")).toBe(true);
     expect(canAccessPath("SUPER_ADMIN", "/admin/organization")).toBe(true);
+    expect(canAccessPath("SUPER_ADMIN", "/admin/settings")).toBe(true);
     expect(canAccessPath("SUPER_ADMIN", "/super-admin")).toBe(true);
+    expect(canAccessPath("SUPER_ADMIN", "/super-admin/settings")).toBe(true);
     expect(canAccessPath("ADMIN", "/admin")).toBe(true);
     expect(canAccessPath("ADMIN", "/admin/organization")).toBe(true);
+    expect(canAccessPath("ADMIN", "/admin/settings")).toBe(true);
     expect(canAccessPath("ADMIN", "/super-admin")).toBe(false);
+    expect(canAccessPath("PICKER", "/admin/settings")).toBe(false);
   });
 });

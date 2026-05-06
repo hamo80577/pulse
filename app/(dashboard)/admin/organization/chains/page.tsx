@@ -47,6 +47,11 @@ export default async function ChainsPage() {
                       <p className="text-sm text-muted-foreground">
                         {chain.code ?? "No code"}
                       </p>
+                      <p className="text-sm text-muted-foreground">
+                        {chain.orderSystemChainId
+                          ? `Order ID: ${chain.orderSystemChainId}`
+                          : "No order-system ID"}
+                      </p>
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
                       <p>{chain.status}</p>

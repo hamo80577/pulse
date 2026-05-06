@@ -10,4 +10,18 @@ describe("ERP navigation items", () => {
       expect(typeof item.icon).toBe("string");
     }
   });
+
+  it("links settings only to implemented route families", () => {
+    const adminSettings = getAdminNavItems("ADMIN").find(
+      (item) => item.label === "Settings",
+    );
+    const superAdminSettings = getAdminNavItems("SUPER_ADMIN").find(
+      (item) => item.label === "Settings",
+    );
+
+    expect(adminSettings?.href).toBe("/admin/settings");
+    expect(adminSettings?.comingSoon).toBeUndefined();
+    expect(superAdminSettings?.href).toBe("/super-admin/settings");
+    expect(superAdminSettings?.comingSoon).toBeUndefined();
+  });
 });

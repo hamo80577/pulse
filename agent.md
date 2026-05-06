@@ -934,15 +934,20 @@ Be direct. Do not hide incomplete work.
 
 The correct build order is:
 
-1. Foundation and auth
-2. Organization tree
-3. External ID readiness and localization/theme foundation
-4. User and assignment management
-5. Generic approval engine
-6. Notifications
-7. Employee lifecycle flows
-8. Data import foundation for attendance and KPI files
-9. KPI dashboards
-10. Reporting and hardening
+1. Phase 0 - Project Bootstrap
+2. Phase 1 - Auth, Roles, and Protected Layouts
+3. Phase 2 - Organization Core
+4. Phase 2.6 - External IDs, Localization, and Preferences Foundation
+5. Phase 3 - User and Employee Profile Management
+6. Phase 4 - Generic Approval Engine
+7. Phase 5 through Phase 8 - Requests, onboarding, transfers, and resignations
+8. Phase 9 - Notification Center
+9. Phase 9.5 - Settings, Language, and Appearance
+10. Phase 10 - Role Dashboards and Basic Reporting
+11. Phase 10.5 - Attendance and KPI Import Center
+12. Phase 11 - KPI Foundation
+13. Phase 12 - Hardening and Production Readiness
 
 Do not start with KPI dashboards before roles, org scope, and approval engine are stable.
+
+Do not implement Phase 3 `EmployeeProfile`, `shopperId`, or `ibsId` before Phase 2.6 is complete. Phase 2.6 adds only chain and branch order-system IDs plus localization and appearance foundations.

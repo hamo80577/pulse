@@ -2,7 +2,7 @@ import "dotenv/config";
 import { hashPassword } from "../lib/auth/password";
 
 type SuperAdminSeedInput = {
-  username: string;
+  phone: string;
   name: string;
   email: string;
   passwordHash: string;
@@ -13,10 +13,11 @@ export function buildSuperAdminSeedData(input: SuperAdminSeedInput) {
   const mustChangePassword = input.forcePasswordChange ?? true;
 
   return {
-    where: { username: input.username },
+    where: { phone: input.phone },
     update: {
       name: input.name,
       email: input.email,
+      phone: input.phone,
       role: "SUPER_ADMIN" as const,
       status: "ACTIVE" as const,
       passwordHash: input.passwordHash,
@@ -24,8 +25,8 @@ export function buildSuperAdminSeedData(input: SuperAdminSeedInput) {
     },
     create: {
       name: input.name,
-      username: input.username,
       email: input.email,
+      phone: input.phone,
       role: "SUPER_ADMIN" as const,
       status: "ACTIVE" as const,
       passwordHash: input.passwordHash,
@@ -39,7 +40,7 @@ async function main() {
     import("@prisma/adapter-pg"),
     import("../generated/prisma/client"),
   ]);
-  const username = process.env.SUPER_ADMIN_USERNAME ?? "superadmin";
+  const phone = process.env.SUPER_ADMIN_PHONE ?? "01000000000";
   const password = process.env.SUPER_ADMIN_PASSWORD;
   const name = process.env.SUPER_ADMIN_NAME ?? "Super Admin";
   const email = process.env.SUPER_ADMIN_EMAIL ?? "superadmin@example.com";
@@ -59,7 +60,7 @@ async function main() {
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.upsert(
     buildSuperAdminSeedData({
-      username,
+      phone,
       name,
       email,
       passwordHash,
@@ -76,7 +77,7 @@ async function main() {
     },
   });
 
-  console.log(`Seeded Super Admin user: ${username}`);
+  console.log(`Seeded Super Admin user phone: ${phone}`);
   await prisma.$disconnect();
 }
 

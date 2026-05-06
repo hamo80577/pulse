@@ -10,7 +10,6 @@ export function Topbar({ user }: { user: SessionUser }) {
       <div className="flex h-14 items-center justify-between gap-4 px-6">
         <div className="min-w-0">
           <p className="text-sm font-medium text-foreground">{user.name}</p>
-          <p className="text-xs text-muted-foreground">{user.username}</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="secondary">{user.role.replaceAll("_", " ")}</Badge>

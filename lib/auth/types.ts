@@ -25,7 +25,6 @@ export type UserStatus = (typeof userStatuses)[number];
 export type SessionUser = {
   id: string;
   name: string;
-  username: string;
   role: Role;
   status: UserStatus;
   mustChangePassword: boolean;

@@ -20,7 +20,7 @@ export function UserFilters({
           defaultValue={search ?? ""}
           id="search"
           name="search"
-          placeholder="Name, username, email, phone, shopper ID, IBS ID"
+          placeholder="Name, email, phone, shopper ID, IBS ID"
         />
       </div>
       <div className="grid gap-2">

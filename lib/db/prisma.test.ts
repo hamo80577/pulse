@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { hasRequiredPrismaDelegates } from "./prisma-client-guard";
+import {
+  hasRequiredPrismaDelegates,
+  isCompatiblePrismaClient,
+} from "./prisma-client-guard";
 
 describe("Prisma client singleton guard", () => {
   it("rejects stale clients missing Phase 3 delegates", () => {
@@ -21,5 +24,22 @@ describe("Prisma client singleton guard", () => {
         employeeProfile: {},
       } as never),
     ).toBe(true);
+  });
+
+  it("rejects stale clients created by an older generated PrismaClient", () => {
+    class CurrentPrismaClient {}
+    class OldPrismaClient {
+      user = {};
+      chain = {};
+      branch = {};
+      employeeProfile = {};
+    }
+
+    expect(
+      isCompatiblePrismaClient(
+        new OldPrismaClient(),
+        CurrentPrismaClient,
+      ),
+    ).toBe(false);
   });
 });

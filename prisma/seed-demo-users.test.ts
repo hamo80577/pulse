@@ -17,12 +17,12 @@ describe("demo user seed", () => {
     expect(demoCredentialFilePath).toBe("LOCAL_CREDENTIALS.md");
 
     const document = buildDemoCredentialDocument([
-      { username: "demo", password: "Secret1!", role: "PICKER" },
+      { phone: "01000000004", password: "abc123", role: "PICKER" },
     ]);
 
     expect(document).toContain("LOCAL_CREDENTIALS.md");
-    expect(document).toContain("demo");
-    expect(document).toContain("Secret1!");
+    expect(document).toContain("01000000004");
+    expect(document).toContain("abc123");
   });
 
   it("defines real demo roles with picker/champ external IDs", () => {

@@ -27,7 +27,6 @@ function toProfileData(input: UserCreateInput | UserUpdateInput) {
 export function buildCreateUserData({ input, passwordHash }: CreateUserDataInput) {
   return {
     name: input.name,
-    username: input.username,
     email: input.email,
     phone: input.phone,
     role: input.role,
@@ -44,7 +43,6 @@ export function buildUpdateUserData(input: UserUpdateInput) {
   return {
     user: {
       name: input.name,
-      username: input.username,
       email: input.email,
       phone: input.phone,
       role: input.role,

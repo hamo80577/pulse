@@ -92,7 +92,6 @@ export async function getCurrentSession(): Promise<CurrentSession | null> {
     user: {
       id: session.user.id,
       name: session.user.name,
-      username: session.user.username,
       role: session.user.role,
       status: session.user.status,
       mustChangePassword: session.user.mustChangePassword,

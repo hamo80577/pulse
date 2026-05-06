@@ -11,7 +11,7 @@ export function UserDetailSections({ user }: { user: UserDetail }) {
   return (
     <div className="grid gap-4">
       <div className="grid gap-4 lg:grid-cols-2" id="overview">
-        <SectionCard description={user.username} title="Overview">
+        <SectionCard description={user.phone} title="Overview">
           <dl className="grid gap-3 text-sm">
             <Row label="Name" value={user.name} />
             <Row label="Email" value={user.email ?? "Not set"} />

@@ -19,4 +19,11 @@ describe("Phase 3 Prisma schema", () => {
     expect(schema).toMatch(/\bidCardBackUrl\s+String\?/);
     expect(schema).not.toMatch(/\bfileBlob\b|\bbytes\b/i);
   });
+
+  it("uses phone as the login identifier and removes username from User", () => {
+    const userModel = schema.match(/model User \{[\s\S]*?\n\}/)?.[0] ?? "";
+
+    expect(userModel).not.toMatch(/\busername\b/);
+    expect(userModel).toMatch(/\bphone\s+String\s+@unique\b/);
+  });
 });

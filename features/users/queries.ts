@@ -5,7 +5,6 @@ import { prisma } from "@/lib/db/prisma";
 export const userListSelect = {
   id: true,
   name: true,
-  username: true,
   email: true,
   phone: true,
   role: true,
@@ -24,7 +23,6 @@ export const userListSelect = {
 export const userDetailSelect = {
   id: true,
   name: true,
-  username: true,
   email: true,
   phone: true,
   role: true,
@@ -98,7 +96,6 @@ export async function getUsers(filters: UserFilters = {}) {
         ? {
             OR: [
               { name: { contains: search, mode: "insensitive" } },
-              { username: { contains: search, mode: "insensitive" } },
               { email: { contains: search, mode: "insensitive" } },
               { phone: { contains: search, mode: "insensitive" } },
               {

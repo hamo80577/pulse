@@ -8,25 +8,36 @@ import {
 
 describe("auth validation", () => {
   it("requires login credentials", () => {
-    const result = loginSchema.safeParse({ username: "", password: "" });
+    const result = loginSchema.safeParse({ phone: "", password: "" });
 
     expect(result.success).toBe(false);
   });
 
   it("accepts valid login credentials", () => {
     const result = loginSchema.safeParse({
-      username: "superadmin",
-      password: "StrongerPass1!",
+      phone: " 01000000000 ",
+      password: "abc123",
     });
 
     expect(result.success).toBe(true);
+    expect(result.success ? result.data.phone : null).toBe("01000000000");
   });
 
-  it("rejects weak first-login passwords", () => {
+  it("rejects first-login passwords shorter than 6 characters", () => {
     const result = firstLoginSchema.safeParse({
       token: "setup-token",
-      password: "password",
-      confirmPassword: "password",
+      password: "a1234",
+      confirmPassword: "a1234",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects first-login passwords with symbols", () => {
+    const result = firstLoginSchema.safeParse({
+      token: "setup-token",
+      password: "abc123!",
+      confirmPassword: "abc123!",
     });
 
     expect(result.success).toBe(false);
@@ -35,48 +46,32 @@ describe("auth validation", () => {
   it("requires first-login password confirmation to match", () => {
     const result = firstLoginSchema.safeParse({
       token: "setup-token",
-      password: "StrongerPass1!",
-      confirmPassword: "StrongerPass2!",
+      password: "abc123",
+      confirmPassword: "abc124",
     });
 
     expect(result.success).toBe(false);
   });
 
-  it("accepts a strong matching first-login password", () => {
+  it("accepts a 6-character alphanumeric first-login password", () => {
     const result = firstLoginSchema.safeParse({
       token: "setup-token",
-      password: "StrongerPass1!",
-      confirmPassword: "StrongerPass1!",
+      password: "abc123",
+      confirmPassword: "abc123",
     });
 
     expect(result.success).toBe(true);
   });
 
-  it("rejects a first-login password that equals the username", async () => {
-    const result = await validateFirstLoginInput(
-      {
-        token: "setup-token",
-        password: "Superadmin1!",
-        confirmPassword: "Superadmin1!",
-      },
-      {
-        username: "superadmin1!",
-      },
-    );
-
-    expect(result.success).toBe(false);
-  });
-
   it("rejects reusing the current authenticated password", async () => {
-    const currentPasswordHash = await hashPassword("CurrentPass1!");
+    const currentPasswordHash = await hashPassword("abc123");
     const result = await validateFirstLoginInput(
       {
         token: "setup-token",
-        password: "CurrentPass1!",
-        confirmPassword: "CurrentPass1!",
+        password: "abc123",
+        confirmPassword: "abc123",
       },
       {
-        username: "superadmin",
         currentPasswordHash,
       },
     );

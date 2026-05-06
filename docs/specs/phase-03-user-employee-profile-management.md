@@ -128,9 +128,8 @@ The temporary setup token is not displayed in normal UI. Local demo seed writes 
 - Trim strings.
 - Empty optional strings normalize to `null`.
 - `name` required.
-- `username` required and unique.
+- `phone` required and unique; login uses phone.
 - `email` optional and unique when provided.
-- `phone` optional.
 - `role` must be a valid Pulse role.
 - `status` must be a valid user status.
 - `nationalId` optional and unique when provided.

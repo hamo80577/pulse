@@ -29,11 +29,11 @@ export function UserList({ users }: { users: UserListItem[] }) {
         >
           <div>
             <p className="font-medium">{user.name}</p>
-            <p className="text-sm text-muted-foreground">{user.username}</p>
+            <p className="text-sm text-muted-foreground">{user.phone}</p>
           </div>
           <div className="text-sm text-muted-foreground">
             <p>{user.email ?? "No email"}</p>
-            <p>{user.phone ?? "No phone"}</p>
+            <p>{user.employeeProfile?.employmentStatus ?? "No employment status"}</p>
           </div>
           <div className="text-sm text-muted-foreground">
             <p>{user.employeeProfile?.shopperId ?? "No shopper ID"}</p>

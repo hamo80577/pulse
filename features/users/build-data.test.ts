@@ -6,9 +6,8 @@ describe("user mutation data", () => {
     const data = buildCreateUserData({
       input: {
         name: "Picker One",
-        username: "picker.one",
         email: null,
-        phone: null,
+        phone: "01000000008",
         role: "PICKER",
         status: "ACTIVE",
         nationalId: null,

@@ -27,17 +27,17 @@ export async function loginAction(
   formData: FormData,
 ): Promise<AuthActionState> {
   const parsed = loginSchema.safeParse({
-    username: getFormValue(formData, "username"),
+    phone: getFormValue(formData, "phone"),
     password: getFormValue(formData, "password"),
   });
 
   if (!parsed.success) {
-    return { error: "Enter a valid username and password." };
+    return { error: "Enter a valid phone number and password." };
   }
 
   const user = await prisma.user.findUnique({
     where: {
-      username: parsed.data.username,
+      phone: parsed.data.phone,
     },
   });
 
@@ -45,9 +45,9 @@ export async function loginAction(
     await createAuditLog({
       action: "AUTH_LOGIN_FAILURE",
       entityType: "User",
-      newValueJson: { username: parsed.data.username, reason: "USER_NOT_FOUND" },
+      newValueJson: { phone: parsed.data.phone, reason: "USER_NOT_FOUND" },
     });
-    return { error: "Invalid username or password." };
+    return { error: "Invalid phone number or password." };
   }
 
   if (isBlockedStatus(user.status)) {
@@ -71,7 +71,7 @@ export async function loginAction(
       entityId: user.id,
       newValueJson: { reason: "INVALID_PASSWORD" },
     });
-    return { error: "Invalid username or password." };
+    return { error: "Invalid phone number or password." };
   }
 
   await prisma.user.update({
@@ -157,7 +157,6 @@ export async function completeFirstLoginAction(
   }
 
   const parsed = await validateFirstLoginInput(input, {
-    username: user.username,
     currentPasswordHash: user.passwordHash,
   });
 

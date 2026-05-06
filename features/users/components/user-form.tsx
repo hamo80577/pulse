@@ -24,9 +24,8 @@ export function UserForm({ user }: { user?: UserDetail }) {
       {user ? <input name="userId" type="hidden" value={user.id} /> : null}
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Name" name="name" required value={user?.name} />
-        <Field label="Username" name="username" required value={user?.username} />
+        <Field label="Phone" name="phone" required type="tel" value={user?.phone} />
         <Field label="Email" name="email" type="email" value={user?.email} />
-        <Field label="Phone" name="phone" value={user?.phone} />
         <SelectField
           label="Role"
           name="role"

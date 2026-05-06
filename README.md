@@ -107,7 +107,8 @@ npm run prisma:studio
 Seed the Super Admin user:
 
 ```bash
-$env:SUPER_ADMIN_PASSWORD="Use-A-Strong-Password1!"
+$env:SUPER_ADMIN_PHONE="01000000000"
+$env:SUPER_ADMIN_PASSWORD="abc123"
 npm run seed:super-admin
 ```
 
@@ -121,8 +122,8 @@ Required variables are documented in `.env.example`:
 DATABASE_URL="postgresql://pulse_app:replace-with-a-local-password@localhost:5433/pulse_local?schema=public"
 NEXTAUTH_SECRET="replace-with-a-long-random-secret"
 NEXTAUTH_URL="http://localhost:3000"
-SUPER_ADMIN_USERNAME="superadmin"
-SUPER_ADMIN_PASSWORD="replace-with-a-strong-local-seed-password"
+SUPER_ADMIN_PHONE="01000000000"
+SUPER_ADMIN_PASSWORD="replace-with-a-local-seed-password"
 SUPER_ADMIN_NAME="Super Admin"
 SUPER_ADMIN_EMAIL="superadmin@example.com"
 SUPER_ADMIN_FORCE_PASSWORD_CHANGE="true"

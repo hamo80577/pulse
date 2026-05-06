@@ -9,9 +9,8 @@ describe("user and employee profile validation", () => {
   it("validates user creation and normalizes optional strings", () => {
     const parsed = userCreateInputSchema.safeParse({
       name: "  Demo Picker  ",
-      username: " picker.demo ",
       email: "",
-      phone: "  ",
+      phone: " 01000000005 ",
       role: "PICKER",
       status: "ACTIVE",
       nationalId: " NAT-1 ",
@@ -25,9 +24,8 @@ describe("user and employee profile validation", () => {
     expect(parsed.success).toBe(true);
     expect(parsed.success ? parsed.data : null).toMatchObject({
       name: "Demo Picker",
-      username: "picker.demo",
       email: null,
-      phone: null,
+      phone: "01000000005",
       nationalId: "NAT-1",
       shopperId: "SHOP-1",
       ibsId: "IBS-1",
@@ -41,7 +39,7 @@ describe("user and employee profile validation", () => {
     expect(
       userCreateInputSchema.safeParse({
         name: "User",
-        username: "user",
+        phone: "01000000006",
         role: "INTERN",
         status: "ACTIVE",
         employmentStatus: "ACTIVE",
@@ -55,9 +53,8 @@ describe("user and employee profile validation", () => {
   it("validates profile updates independently from auth fields", () => {
     const parsed = userUpdateInputSchema.safeParse({
       name: "Area Manager",
-      username: "area.manager",
       email: "area@example.com",
-      phone: "",
+      phone: " 01000000007 ",
       role: "AREA_MANAGER",
       status: "ACTIVE",
       nationalId: "",
@@ -70,7 +67,7 @@ describe("user and employee profile validation", () => {
 
     expect(parsed.success).toBe(true);
     expect(parsed.success ? parsed.data : null).toMatchObject({
-      phone: null,
+      phone: "01000000007",
       nationalId: null,
       shopperId: null,
       ibsId: "IBS-9",

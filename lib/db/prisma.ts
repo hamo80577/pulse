@@ -1,6 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
-import { hasRequiredPrismaDelegates } from "./prisma-client-guard";
+import { isCompatiblePrismaClient } from "./prisma-client-guard";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -18,7 +18,7 @@ function createPrismaClient() {
 
 let prismaClient = globalForPrisma.prisma;
 
-if (!hasRequiredPrismaDelegates(prismaClient)) {
+if (!isCompatiblePrismaClient(prismaClient, PrismaClient)) {
   prismaClient = createPrismaClient();
 }
 

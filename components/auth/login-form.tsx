@@ -13,20 +13,27 @@ export function LoginForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="username">Username</Label>
+      <div className="flex flex-col gap-2.5">
+        <Label className="text-[13px] font-medium text-[#1f2937]" htmlFor="phone">
+          Phone
+        </Label>
         <Input
-          autoComplete="username"
-          id="username"
-          name="username"
-          placeholder="superadmin"
+          autoComplete="tel"
+          className="h-12 rounded-xl border-[#d5deea] bg-[#f8fafc] px-4 text-[15px] text-[#111827] shadow-none transition-colors placeholder:text-[#94a3b8] focus-visible:ring-[#9db4d0]"
+          id="phone"
+          name="phone"
+          placeholder="01000000000"
           required
+          type="tel"
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Password</Label>
+      <div className="flex flex-col gap-2.5">
+        <Label className="text-[13px] font-medium text-[#1f2937]" htmlFor="password">
+          Password
+        </Label>
         <Input
           autoComplete="current-password"
+          className="h-12 rounded-xl border-[#d5deea] bg-[#f8fafc] px-4 text-[15px] text-[#111827] shadow-none transition-colors focus-visible:ring-[#9db4d0]"
           id="password"
           name="password"
           required
@@ -34,11 +41,15 @@ export function LoginForm() {
         />
       </div>
       {state.error ? (
-        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {state.error}
         </p>
       ) : null}
-      <Button disabled={isPending} type="submit">
+      <Button
+        className="mt-1 h-12 rounded-xl bg-[#132238] text-[15px] font-semibold text-white shadow-none hover:bg-[#1c314d]"
+        disabled={isPending}
+        type="submit"
+      >
         {isPending ? "Signing in..." : "Sign in"}
       </Button>
     </form>

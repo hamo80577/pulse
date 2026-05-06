@@ -10,6 +10,7 @@ export const employmentStatuses = [
 ] as const;
 
 const requiredTrimmedString = z.string().trim().min(1);
+const requiredPhone = z.string().trim().min(1);
 const optionalTrimmedString = z
   .string()
   .trim()
@@ -47,9 +48,8 @@ export const profileInputSchema = z.object({
 
 const baseUserSchema = z.object({
   name: requiredTrimmedString,
-  username: requiredTrimmedString,
   email: optionalEmail,
-  phone: optionalTrimmedString,
+  phone: requiredPhone,
   role: z.enum(roles),
   status: z.enum(userStatuses),
 });

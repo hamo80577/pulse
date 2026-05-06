@@ -59,7 +59,7 @@ Make Pulse feel like a professional internal HR ERP workforce system while keepi
 ## Security Rules
 
 - Organization queries must never use `user: true` or `createdBy: true`.
-- Organization user selections must use explicit `select` with only `id`, `name`, `role`, and optionally `username` or `status` when needed.
+- Organization user selections must use explicit `select` with only `id`, `name`, `role`, and optionally `phone` or `status` when needed.
 - Full Prisma `User` records must never be passed to client components.
 - `createBranchAction` must require the selected chain to be `ACTIVE`.
 - `updateBranchAction` must require the selected chain to be `ACTIVE`.

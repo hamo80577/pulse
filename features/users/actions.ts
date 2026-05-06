@@ -56,13 +56,12 @@ async function createSetupToken(userId: string) {
 }
 
 function uniqueErrorMessage() {
-  return "Username, email, national ID, shopper ID, or IBS ID already exists.";
+  return "Phone, email, national ID, shopper ID, or IBS ID already exists.";
 }
 
 function formInput(formData: FormData) {
   return {
     name: getFormValue(formData, "name"),
-    username: getFormValue(formData, "username"),
     email: getFormValue(formData, "email"),
     phone: getFormValue(formData, "phone"),
     role: getFormValue(formData, "role"),
@@ -147,7 +146,6 @@ export async function updateUserAndProfileAction(
     select: {
       id: true,
       name: true,
-      username: true,
       email: true,
       phone: true,
       role: true,

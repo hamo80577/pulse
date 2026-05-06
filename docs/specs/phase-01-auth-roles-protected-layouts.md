@@ -64,7 +64,7 @@ Missing for Phase 1:
 
 - A custom credentials flow is acceptable for Phase 1 and avoids Auth.js adapter/version complexity.
 - Session storage is database-backed and keyed by an HTTP-only cookie.
-- Usernames are the primary login identifier; email can be added to user records but is optional for login.
+- Phone numbers are the primary login identifier; email can be added to user records but is optional for login.
 - The seed Super Admin is created from environment variables, starts as `ACTIVE`, and is forced to change password on first login by default.
 - First-login setup is implemented for users with `PENDING_SETUP` or `mustChangePassword = true`.
 - Setup links are token-based, but Phase 1 can also allow an authenticated pending user to complete setup through `/first-login`.
@@ -72,7 +72,7 @@ Missing for Phase 1:
 ## Open Questions
 
 - Exact production session duration is not specified. Phase 1 uses 7 days.
-- Exact password policy is not specified. Phase 1 requires at least 10 characters, uppercase, lowercase, number, and symbol.
+- Password policy requires at least 6 characters and allows letters and numbers only.
 - Exact seeded Super Admin credentials are not specified. Phase 1 documents environment variables and uses safe local defaults only in the seed command.
 
 ## Data Model Changes
@@ -101,7 +101,6 @@ Add Prisma models:
 - `User`
   - `id`
   - `name`
-  - `username`
   - `email`
   - `phone`
   - `role`
@@ -193,13 +192,12 @@ No API routes are required in Phase 1.
 Use Zod schemas:
 
 - Login
-  - username required
+  - phone required
   - password required
 - First-login setup
   - token optional when user is already authenticated
   - password must satisfy the Phase 1 password policy
   - confirm password must match
-  - password cannot equal the username
   - password cannot reuse the current authenticated password when a current hash exists
 
 ## Notifications

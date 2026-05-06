@@ -43,7 +43,7 @@ export default async function WorkforceUserDetailPage({
             </Button>
           </div>
         }
-        description={user.username}
+        description={user.phone}
         title={user.name}
       />
       <nav className="flex flex-wrap gap-2">

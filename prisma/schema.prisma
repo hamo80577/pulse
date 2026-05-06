@@ -62,6 +62,48 @@ enum EmploymentStatus {
   TERMINATED
 }
 
+enum ApprovalRequestType {
+  ANNUAL_LEAVE
+  ADD_PICKER
+  ADD_CHAMP
+  TRANSFER_PICKER_SAME_CHAIN
+  TRANSFER_PICKER_CROSS_CHAIN
+  RESIGNATION
+  EMPLOYEE_DATA_UPDATE
+}
+
+enum ApprovalRequestStatus {
+  DRAFT
+  SUBMITTED
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum ApprovalStepStatus {
+  WAITING
+  ACTIVE
+  APPROVED
+  REJECTED
+  SKIPPED
+}
+
+enum ApprovalDecision {
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  REQUEST_SUBMITTED
+  APPROVAL_REQUIRED
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  REQUEST_CANCELLED
+  REQUEST_COMPLETED
+}
+
 model User {
   id                         String             @id @default(cuid())
   name                       String
@@ -82,6 +124,10 @@ model User {
   managerRelationsAsEmployee ManagerRelation[]  @relation("ManagerRelationEmployee")
   managerRelationsAsManager  ManagerRelation[]  @relation("ManagerRelationManager")
   employeeProfile            EmployeeProfile?
+  approvalRequestsRequested  ApprovalRequest[]  @relation("ApprovalRequester")
+  approvalRequestsTargeted   ApprovalRequest[]  @relation("ApprovalTarget")
+  approvalStepsAssigned      ApprovalStep[]     @relation("ApprovalStepApprover")
+  notifications              Notification[]
 }
 
 model Session {
@@ -221,4 +267,67 @@ model ManagerRelation {
   @@index([employeeUserId])
   @@index([managerUserId])
   @@index([status])
+}
+
+model ApprovalRequest {
+  id               String                @id @default(cuid())
+  requestType      ApprovalRequestType
+  requesterId      String
+  targetUserId     String?
+  status           ApprovalRequestStatus @default(PENDING)
+  currentStepOrder Int?
+  payloadJson      Json
+  submittedAt      DateTime?
+  finalDecisionAt  DateTime?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  requester        User                  @relation("ApprovalRequester", fields: [requesterId], references: [id], onDelete: Restrict)
+  targetUser       User?                 @relation("ApprovalTarget", fields: [targetUserId], references: [id], onDelete: Restrict)
+  steps            ApprovalStep[]
+
+  @@index([requesterId])
+  @@index([targetUserId])
+  @@index([requestType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model ApprovalStep {
+  id             String             @id @default(cuid())
+  requestId      String
+  stepOrder      Int
+  approverRole   Role
+  approverUserId String?
+  status         ApprovalStepStatus @default(WAITING)
+  decision       ApprovalDecision?
+  comment        String?
+  decidedAt      DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  request        ApprovalRequest    @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  approver       User?              @relation("ApprovalStepApprover", fields: [approverUserId], references: [id], onDelete: SetNull)
+
+  @@unique([requestId, stepOrder])
+  @@index([requestId])
+  @@index([status])
+  @@index([approverRole])
+  @@index([approverUserId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  type      NotificationType
+  linkUrl   String?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([type])
+  @@index([createdAt])
 }

@@ -36,13 +36,13 @@ export function getAdminNavItems(role: Role): NavItem[] {
     },
     {
       label: "Requests",
+      href: "/requests",
       icon: "requests",
-      comingSoon: true,
     },
     {
       label: "Approvals",
+      href: "/admin/approvals",
       icon: "approvals",
-      comingSoon: true,
     },
     {
       label: "Notifications",

@@ -40,6 +40,8 @@ Build a reusable request and approval engine that supports request-type-driven w
 - Add approval list, request form, request detail, timeline, and decision panel components.
 - Add audit logs for request submission and decisions.
 - Add minimal notifications for next approver and final requester decision.
+- Bound request and approval queue lists with pagination. Phase 4 must not load
+  unbounded request history into page renders.
 
 ## Out of Scope
 
@@ -54,12 +56,16 @@ Build a reusable request and approval engine that supports request-type-driven w
 
 ## Assumptions
 
-- Phase 4 proves the generic engine with `ANNUAL_LEAVE`; future phases add request-specific payload validation and side effects.
+- Phase 4 proves the generic engine with an `ANNUAL_LEAVE` proof form only.
+  Other request types keep workflow templates but cannot be created with
+  annual-leave payload fields until their later phases define payload schemas.
 - A request can be created by any active authenticated user.
 - Initial workflow templates are static code definitions, not database-configurable workflows.
 - Admin and Super Admin can view `/admin/approvals` as an operational queue.
 - Step approver matching uses either direct `approverUserId` when present or `approverRole` when role-based.
-- Role-based approver steps are usable even before scoped manager resolution is implemented in later request phases.
+- Role-based approver steps are fallback/proof behavior only. The workflow
+  layer exposes an approver resolver hook so later phases can assign
+  `approverUserId` from manager relations and notify a specific approver.
 
 ## Open Questions
 
@@ -124,6 +130,11 @@ Indexes:
 - Approval requests by requester, target user, status, type, and created date.
 - Approval steps by request, status, approver role, approver user, and step order.
 - Notifications by user, read state, type, and created date.
+- Compound approval queue indexes:
+  - `ApprovalRequest(status, createdAt)`
+  - `ApprovalRequest(requesterId, createdAt)`
+  - `ApprovalStep(status, approverRole)`
+  - `ApprovalStep(status, approverUserId)`
 
 ## Routes and Pages
 
@@ -179,10 +190,14 @@ No API routes are required.
 - `requestType` must be valid.
 - `payloadJson` must be object-shaped and request-type compatible.
 - `ANNUAL_LEAVE` proof payload requires a valid leave date and reason.
+- Phase 4 request creation rejects all non-`ANNUAL_LEAVE` request types.
 - Reject invalid dates.
 - Decision comments are optional on approval and required on rejection.
 - Do not allow decisions on non-active steps.
 - Do not allow duplicate decisions on the same active step.
+- Decision updates use conditional active-step updates so repeated or
+  concurrent clicks return a clear error instead of recording duplicate
+  approvals or rejections.
 - Do not allow cancelling requests after final approval or rejection.
 
 ## Notifications
@@ -196,6 +211,11 @@ Create minimal notification records for:
 - request cancelled
 
 Full notification center UI and read-management remain Phase 9.
+
+Role-wide approver notifications are Phase 4 fallback/proof behavior only.
+When `approverUserId` is resolved, the notification helper sends to the
+specific user; later request phases should resolve real approvers from manager
+relations.
 
 ## Audit Logging
 
@@ -215,6 +235,10 @@ Audit payloads must not include passwords, password hashes, session tokens, setu
 - Workflow template tests for initial request types and ordered steps.
 - Status-machine tests for approval, rejection, completion, cancellation, and invalid duplicate decisions.
 - Validation tests for request creation and rejection comments.
+- Pagination tests for bounded approval list queries.
+- Migration/schema tests for approval queue compound indexes.
+- Action hardening tests for clear approve failures and conditional active-step updates.
+- Tests proving Phase 4 has not added Phase 5 annual leave business routes or models.
 - Permission tests for active approver decisions and admin queue access.
 - Query security tests verifying explicit safe selects and no unsafe `user: true`.
 - Route tests for requests and approvals pages.

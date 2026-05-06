@@ -23,6 +23,10 @@ export function DecisionPanel({
     rejectRequestAction,
     initialState,
   );
+  const [approveState, approveAction, isApproving] = useActionState(
+    approveRequestAction,
+    initialState,
+  );
 
   if (!canDecide) {
     return (
@@ -34,10 +38,13 @@ export function DecisionPanel({
 
   return (
     <div className="grid gap-4">
-      <form action={approveRequestAction} className="flex items-center gap-3">
+      <form action={approveAction} className="flex items-center gap-3">
         <input name="requestId" type="hidden" value={requestId} />
-        <Button type="submit">Approve active step</Button>
+        <Button disabled={isApproving} type="submit">
+          {isApproving ? "Approving..." : "Approve active step"}
+        </Button>
       </form>
+      <ApprovalActionMessage state={approveState} />
       <form action={rejectAction} className="grid gap-3">
         <input name="requestId" type="hidden" value={requestId} />
         <Label htmlFor="comment">Rejection comment</Label>

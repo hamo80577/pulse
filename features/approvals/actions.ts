@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@/generated/prisma/client";
+import type { SessionUser } from "@/lib/auth/types";
 import { requireSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import {
@@ -13,7 +14,7 @@ import {
 import { buildApprovalSteps } from "./workflows";
 import { canDecideActiveStep, resolveApprovalOutcome } from "./rules";
 import {
-  notifyApproverRole,
+  notifyApprovalStep,
   notifyRequesterFinalState,
 } from "./notifications";
 
@@ -47,7 +48,11 @@ export async function createApprovalRequestAction(
     return { error: "Enter valid request details." };
   }
 
-  const steps = buildApprovalSteps(parsed.data.requestType);
+  const steps = buildApprovalSteps(parsed.data.requestType, {
+    requesterId: session.user.id,
+    targetUserId: parsed.data.targetUserId,
+    payloadJson: parsed.data.payloadJson,
+  });
   const requestId = await prisma.$transaction(async (transaction) => {
     const request = await transaction.approvalRequest.create({
       data: {
@@ -81,8 +86,9 @@ export async function createApprovalRequestAction(
       },
     });
 
-    await notifyApproverRole({
+    await notifyApprovalStep({
       approverRole: steps[0].approverRole,
+      approverUserId: steps[0].approverUserId,
       requestId: request.id,
       requestType: request.requestType,
       client: transaction,
@@ -96,7 +102,10 @@ export async function createApprovalRequestAction(
   redirect(`/requests/${requestId}`);
 }
 
-export async function approveRequestAction(formData: FormData) {
+export async function approveRequestAction(
+  _previousState: ApprovalActionState,
+  formData: FormData,
+): Promise<ApprovalActionState> {
   const session = await requireSession();
   const parsed = approvalDecisionInputSchema.safeParse({
     requestId: getFormValue(formData, "requestId"),
@@ -105,20 +114,25 @@ export async function approveRequestAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    return;
+    return { error: "Approval request is missing." };
   }
 
-  await decideRequest({
+  const result = await decideRequest({
     requestId: parsed.data.requestId,
     decision: "APPROVED",
     comment: parsed.data.comment,
     actor: session.user,
   });
 
+  if (!result.success) {
+    return { error: result.error };
+  }
+
   revalidatePath("/requests");
   revalidatePath("/approvals");
   revalidatePath(`/approvals/${parsed.data.requestId}`);
   revalidatePath(`/requests/${parsed.data.requestId}`);
+  return { success: "Request approved." };
 }
 
 export async function rejectRequestAction(
@@ -228,7 +242,7 @@ async function decideRequest({
   comment: string | null;
   actor: {
     id: string;
-    role: string;
+    role: SessionUser["role"];
   };
 }): Promise<{ success: true } | { success: false; error: string }> {
   return prisma.$transaction(async (transaction) => {
@@ -264,7 +278,7 @@ async function decideRequest({
 
     if (
       !canDecideActiveStep(
-        { id: actor.id, role: actor.role as never },
+        { id: actor.id, role: actor.role },
         {
           approverRole: activeStep.approverRole,
           approverUserId: activeStep.approverUserId,
@@ -275,16 +289,28 @@ async function decideRequest({
       return { success: false, error: "You cannot decide this approval step." };
     }
 
+    const decidedAt = new Date();
+    const decidedStep = await transaction.approvalStep.updateMany({
+      where: {
+        id: activeStep.id,
+        status: "ACTIVE",
+      },
+      data: {
+        status: decision,
+        decision,
+        comment,
+        decidedAt,
+      },
+    });
+
+    if (decidedStep.count !== 1) {
+      return {
+        success: false,
+        error: "This approval step was already decided. Refresh and try again.",
+      };
+    }
+
     if (decision === "REJECTED") {
-      await transaction.approvalStep.update({
-        where: { id: activeStep.id },
-        data: {
-          status: "REJECTED",
-          decision: "REJECTED",
-          comment,
-          decidedAt: new Date(),
-        },
-      });
       await transaction.approvalRequest.update({
         where: { id: request.id },
         data: {
@@ -312,15 +338,6 @@ async function decideRequest({
     }
 
     const outcome = resolveApprovalOutcome(request.steps);
-    await transaction.approvalStep.update({
-      where: { id: activeStep.id },
-      data: {
-        status: "APPROVED",
-        decision: "APPROVED",
-        comment,
-        decidedAt: new Date(),
-      },
-    });
 
     await transaction.auditLog.create({
       data: {
@@ -358,8 +375,11 @@ async function decideRequest({
       return { success: true };
     }
 
-    await transaction.approvalStep.update({
-      where: { id: outcome.nextStepId ?? "" },
+    await transaction.approvalStep.updateMany({
+      where: {
+        id: outcome.nextStepId ?? "",
+        status: "WAITING",
+      },
       data: { status: "ACTIVE" },
     });
     await transaction.approvalRequest.update({
@@ -369,8 +389,9 @@ async function decideRequest({
 
     const nextStep = request.steps.find((step) => step.id === outcome.nextStepId);
     if (nextStep) {
-      await notifyApproverRole({
+      await notifyApprovalStep({
         approverRole: nextStep.approverRole,
+        approverUserId: nextStep.approverUserId,
         requestId: request.id,
         requestType: request.requestType,
         client: transaction,

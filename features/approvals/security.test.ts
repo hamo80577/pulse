@@ -26,4 +26,12 @@ describe("approval feature security", () => {
     expect(content).toContain("approvalRequestDetailSelect");
     expect(content).toContain("approvalStepSelect");
   });
+
+  it("keeps approval list queries bounded", () => {
+    const content = readFileSync("features/approvals/queries.ts", "utf8");
+
+    expect(content).toContain("APPROVAL_LIST_PAGE_SIZE");
+    expect(content).toMatch(/findMany\(\{[\s\S]*take:\s*pagination\.take\s*\+\s*1/);
+    expect(content).not.toMatch(/export\s+async\s+function\s+getMyApprovalRequests[\s\S]*findMany\(\{[\s\S]*orderBy:\s*\{\s*createdAt:\s*"desc"\s*\}\s*,\s*\}\)/);
+  });
 });

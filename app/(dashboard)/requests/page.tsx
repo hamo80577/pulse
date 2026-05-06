@@ -3,13 +3,26 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/ui/section-card";
+import { PaginationControls } from "@/features/approvals/components/pagination-controls";
 import { RequestList } from "@/features/approvals/components/request-list";
 import { getMyApprovalRequests } from "@/features/approvals/queries";
 import { requireSession } from "@/lib/auth/session";
 
-export default async function RequestsPage() {
+type RequestsPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function getPage(searchParams: Record<string, string | string[] | undefined>) {
+  const page = searchParams.page;
+  return Array.isArray(page) ? page[0] : page;
+}
+
+export default async function RequestsPage({ searchParams }: RequestsPageProps) {
   const session = await requireSession();
-  const requests = await getMyApprovalRequests(session.user.id);
+  const params = searchParams ? await searchParams : {};
+  const result = await getMyApprovalRequests(session.user.id, {
+    page: getPage(params),
+  });
 
   return (
     <DashboardShell user={session.user}>
@@ -24,8 +37,13 @@ export default async function RequestsPage() {
           title="My Requests"
         />
         <SectionCard title="Submitted Requests">
-          <RequestList requests={requests} />
+          <RequestList requests={result.requests} />
         </SectionCard>
+        <PaginationControls
+          basePath="/requests"
+          hasNextPage={result.hasNextPage}
+          page={result.page}
+        />
       </main>
     </DashboardShell>
   );

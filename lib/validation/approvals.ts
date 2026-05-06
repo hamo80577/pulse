@@ -14,7 +14,9 @@ export const approvalRequestTypeSchema = z.enum(approvalRequestTypes);
 
 export const approvalRequestInputSchema = z
   .object({
-    requestType: approvalRequestTypeSchema,
+    requestType: z.literal("ANNUAL_LEAVE", {
+      error: "Phase 4 request creation only supports annual leave proof requests.",
+    }),
     targetUserId: z.string().trim().optional(),
     leaveDate: dateOnlySchema,
     reason: z.string().trim().min(3, "Reason is required."),
@@ -52,6 +54,5 @@ export const cancelApprovalRequestInputSchema = z.object({
   requestId: z.string().trim().min(1, "Request is required."),
 });
 
-export type ApprovalRequestTypeInput = z.infer<typeof approvalRequestTypeSchema>;
 export type ApprovalRequestInput = z.infer<typeof approvalRequestInputSchema>;
 export type ApprovalDecisionInput = z.infer<typeof approvalDecisionInputSchema>;

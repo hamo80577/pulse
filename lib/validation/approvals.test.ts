@@ -19,6 +19,17 @@ describe("approval validation", () => {
     );
   });
 
+  it("does not allow future request types to reuse annual leave payload fields", () => {
+    const result = approvalRequestInputSchema.safeParse({
+      requestType: "ADD_PICKER",
+      targetUserId: "",
+      leaveDate: "2026-05-20",
+      reason: "Personal appointment",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it("rejects invalid annual leave dates", () => {
     const result = approvalRequestInputSchema.safeParse({
       requestType: "ANNUAL_LEAVE",

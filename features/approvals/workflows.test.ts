@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   approvalRequestTypes,
   buildApprovalSteps,
+  resolveApprovalStepApprover,
   getWorkflowTemplate,
 } from "./workflows";
 
@@ -33,5 +34,18 @@ describe("approval workflow templates", () => {
     expect(getWorkflowTemplate("EMPLOYEE_DATA_UPDATE")).toEqual([
       { approverRole: "ADMIN" },
     ]);
+  });
+
+  it("exposes an approver resolver extension point without starting Phase 5 flow", () => {
+    expect(
+      resolveApprovalStepApprover({
+        requestType: "ANNUAL_LEAVE",
+        stepOrder: 1,
+        approverRole: "CHAMP",
+        requesterId: "picker-1",
+        targetUserId: null,
+        payloadJson: { leaveDate: "2026-05-20", reason: "Personal appointment" },
+      }),
+    ).toEqual({ approverUserId: null, fallbackToRole: true });
   });
 });

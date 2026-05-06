@@ -12,6 +12,14 @@ type NotificationInput = {
   linkUrl?: string | null;
 };
 
+type ApprovalStepNotificationTarget = {
+  approverRole: Role;
+  approverUserId: string | null;
+  requestId: string;
+  requestType: string;
+  client?: NotificationClient;
+};
+
 export async function createNotification(
   input: NotificationInput,
   client: NotificationClient = prisma,
@@ -38,6 +46,8 @@ export async function notifyApproverRole({
   requestType: string;
   client?: NotificationClient;
 }) {
+  // Phase 4 fallback/proof behavior only. Later request phases should resolve
+  // approverUserId from manager relations and notify a specific approver.
   const users = await client.user.findMany({
     where: {
       role: approverRole,
@@ -58,6 +68,35 @@ export async function notifyApproverRole({
       type: "APPROVAL_REQUIRED",
       linkUrl: `/approvals/${requestId}`,
     })),
+  });
+}
+
+export async function notifyApprovalStep({
+  approverRole,
+  approverUserId,
+  requestId,
+  requestType,
+  client = prisma,
+}: ApprovalStepNotificationTarget) {
+  if (approverUserId) {
+    await createNotification(
+      {
+        userId: approverUserId,
+        title: "Approval required",
+        body: `${requestType.replaceAll("_", " ")} is waiting for your decision.`,
+        type: "APPROVAL_REQUIRED",
+        linkUrl: `/approvals/${requestId}`,
+      },
+      client,
+    );
+    return;
+  }
+
+  await notifyApproverRole({
+    approverRole,
+    requestId,
+    requestType,
+    client,
   });
 }
 

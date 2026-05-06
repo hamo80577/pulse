@@ -290,6 +290,8 @@ model ApprovalRequest {
   @@index([requestType])
   @@index([status])
   @@index([createdAt])
+  @@index([status, createdAt], map: "ApprovalRequest_status_createdAt_idx")
+  @@index([requesterId, createdAt], map: "ApprovalRequest_requesterId_createdAt_idx")
 }
 
 model ApprovalStep {
@@ -312,6 +314,8 @@ model ApprovalStep {
   @@index([status])
   @@index([approverRole])
   @@index([approverUserId])
+  @@index([status, approverRole], map: "ApprovalStep_status_approverRole_idx")
+  @@index([status, approverUserId], map: "ApprovalStep_status_approverUserId_idx")
 }
 
 model Notification {

@@ -1,7 +1,17 @@
 import type { Prisma } from "@/generated/prisma/client";
 import type { SessionUser } from "@/lib/auth/types";
 import { prisma } from "@/lib/db/prisma";
+import {
+  type ApprovalListOptions,
+  normalizeApprovalListOptions,
+} from "./pagination";
 import { canManageApprovalQueue, canViewApprovalRequest } from "./rules";
+
+export {
+  APPROVAL_LIST_MAX_PAGE_SIZE,
+  APPROVAL_LIST_PAGE_SIZE,
+  normalizeApprovalListOptions,
+} from "./pagination";
 
 const safeApprovalUserSelect = {
   id: true,
@@ -57,16 +67,47 @@ export type ApprovalRequestDetail = Prisma.ApprovalRequestGetPayload<{
   select: typeof approvalRequestDetailSelect;
 }>;
 
-export async function getMyApprovalRequests(userId: string) {
-  return prisma.approvalRequest.findMany({
+export type ApprovalRequestListResult = {
+  requests: ApprovalRequestListItem[];
+  page: number;
+  pageSize: number;
+  hasNextPage: boolean;
+};
+
+function toApprovalRequestListResult(
+  requests: ApprovalRequestListItem[],
+  pagination: ReturnType<typeof normalizeApprovalListOptions>,
+): ApprovalRequestListResult {
+  return {
+    requests: requests.slice(0, pagination.pageSize),
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    hasNextPage: requests.length > pagination.pageSize,
+  };
+}
+
+export async function getMyApprovalRequests(
+  userId: string,
+  options?: ApprovalListOptions,
+) {
+  const pagination = normalizeApprovalListOptions(options);
+  const requests = await prisma.approvalRequest.findMany({
     where: { requesterId: userId },
     select: approvalRequestListSelect,
     orderBy: { createdAt: "desc" },
+    skip: pagination.skip,
+    take: pagination.take + 1,
   });
+
+  return toApprovalRequestListResult(requests, pagination);
 }
 
-export async function getApprovalQueue(user: SessionUser) {
-  return prisma.approvalRequest.findMany({
+export async function getApprovalQueue(
+  user: SessionUser,
+  options?: ApprovalListOptions,
+) {
+  const pagination = normalizeApprovalListOptions(options);
+  const requests = await prisma.approvalRequest.findMany({
     where: {
       status: "PENDING",
       steps: {
@@ -81,11 +122,16 @@ export async function getApprovalQueue(user: SessionUser) {
     },
     select: approvalRequestListSelect,
     orderBy: { createdAt: "asc" },
+    skip: pagination.skip,
+    take: pagination.take + 1,
   });
+
+  return toApprovalRequestListResult(requests, pagination);
 }
 
-export async function getAdminApprovalQueue() {
-  return prisma.approvalRequest.findMany({
+export async function getAdminApprovalQueue(options?: ApprovalListOptions) {
+  const pagination = normalizeApprovalListOptions(options);
+  const requests = await prisma.approvalRequest.findMany({
     where: {
       status: {
         in: ["PENDING", "APPROVED", "REJECTED", "CANCELLED"],
@@ -93,7 +139,11 @@ export async function getAdminApprovalQueue() {
     },
     select: approvalRequestListSelect,
     orderBy: { createdAt: "desc" },
+    skip: pagination.skip,
+    take: pagination.take + 1,
   });
+
+  return toApprovalRequestListResult(requests, pagination);
 }
 
 export async function getApprovalRequestDetail(

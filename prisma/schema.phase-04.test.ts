@@ -24,4 +24,17 @@ describe("Phase 4 Prisma schema", () => {
     expect(schema).not.toMatch(/\bAnnualLeaveRequest\b/);
     expect(schema).not.toMatch(/\bTransferRequest\b/);
   });
+
+  it("adds compound indexes for approval queues and request lists", () => {
+    expect(schema).toMatch(/@@index\(\[status,\s*createdAt\]/);
+    expect(schema).toMatch(/@@index\(\[requesterId,\s*createdAt\]/);
+    expect(schema).toMatch(/@@index\(\[status,\s*approverRole\]/);
+    expect(schema).toMatch(/@@index\(\[status,\s*approverUserId\]/);
+  });
+
+  it("does not add Phase 5 annual leave business models", () => {
+    expect(schema).not.toMatch(/\bmodel\s+AnnualLeaveRequest\b/);
+    expect(schema).not.toContain("leaveDate");
+    expect(schema).not.toContain("leaveBalance");
+  });
 });

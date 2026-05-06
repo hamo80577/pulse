@@ -27,22 +27,53 @@ enum UserStatus {
   DELETED
 }
 
+enum OrganizationStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum BranchAssignmentRole {
+  PICKER
+  CHAMP
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  ENDED
+}
+
+enum ManagerRelationType {
+  CHAMP_TO_PICKER
+  AREA_MANAGER_TO_CHAMP
+  OPERATIONS_TO_AREA_MANAGER
+}
+
+enum ManagerRelationStatus {
+  ACTIVE
+  ENDED
+}
+
 model User {
-  id                 String       @id @default(cuid())
-  name               String
-  username           String       @unique
-  email              String?      @unique
-  phone              String?
-  role               Role
-  status             UserStatus   @default(PENDING_SETUP)
-  passwordHash       String?
-  mustChangePassword Boolean      @default(true)
-  lastLoginAt        DateTime?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
-  sessions           Session[]
-  setupTokens        SetupToken[]
-  auditLogs          AuditLog[]   @relation("AuditActor")
+  id                         String             @id @default(cuid())
+  name                       String
+  username                   String             @unique
+  email                      String?            @unique
+  phone                      String?
+  role                       Role
+  status                     UserStatus         @default(PENDING_SETUP)
+  passwordHash               String?
+  mustChangePassword         Boolean            @default(true)
+  lastLoginAt                DateTime?
+  createdAt                  DateTime           @default(now())
+  updatedAt                  DateTime           @updatedAt
+  sessions                   Session[]
+  setupTokens                SetupToken[]
+  auditLogs                  AuditLog[]         @relation("AuditActor")
+  branchAssignments          BranchAssignment[] @relation("BranchAssignmentUser")
+  branchAssignmentsCreated   BranchAssignment[] @relation("BranchAssignmentCreator")
+  managerRelationsAsEmployee ManagerRelation[]  @relation("ManagerRelationEmployee")
+  managerRelationsAsManager  ManagerRelation[]  @relation("ManagerRelationManager")
 }
 
 model Session {
@@ -89,4 +120,76 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([action])
   @@index([createdAt])
+}
+
+model Chain {
+  id        String             @id @default(cuid())
+  name      String
+  code      String?
+  status    OrganizationStatus @default(ACTIVE)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  branches  Branch[]
+
+  @@unique([name])
+  @@unique([code])
+  @@index([status])
+}
+
+model Branch {
+  id          String             @id @default(cuid())
+  chainId     String
+  name        String
+  code        String?
+  address     String?
+  status      OrganizationStatus @default(ACTIVE)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  chain       Chain              @relation(fields: [chainId], references: [id], onDelete: Restrict)
+  assignments BranchAssignment[]
+
+  @@unique([chainId, name])
+  @@unique([code])
+  @@index([chainId])
+  @@index([status])
+}
+
+model BranchAssignment {
+  id           String               @id @default(cuid())
+  userId       String
+  branchId     String
+  roleAtBranch BranchAssignmentRole
+  startDate    DateTime
+  endDate      DateTime?
+  isPrimary    Boolean              @default(true)
+  status       AssignmentStatus     @default(ACTIVE)
+  createdById  String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  user         User                 @relation("BranchAssignmentUser", fields: [userId], references: [id], onDelete: Restrict)
+  branch       Branch               @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  createdBy    User?                @relation("BranchAssignmentCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([branchId])
+  @@index([status])
+  @@index([createdById])
+}
+
+model ManagerRelation {
+  id             String                @id @default(cuid())
+  employeeUserId String
+  managerUserId  String
+  relationType   ManagerRelationType
+  startDate      DateTime
+  endDate        DateTime?
+  status         ManagerRelationStatus @default(ACTIVE)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  employee       User                  @relation("ManagerRelationEmployee", fields: [employeeUserId], references: [id], onDelete: Restrict)
+  manager        User                  @relation("ManagerRelationManager", fields: [managerUserId], references: [id], onDelete: Restrict)
+
+  @@index([employeeUserId])
+  @@index([managerUserId])
+  @@index([status])
 }

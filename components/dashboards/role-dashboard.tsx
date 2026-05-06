@@ -1,5 +1,7 @@
 import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import type { Role, SessionUser } from "@/lib/auth/types";
 
 const roleTitles: Record<Role, string> = {
@@ -61,6 +63,24 @@ export function RoleDashboard({ role, user }: { role: Role; user: SessionUser })
           </CardContent>
         </Card>
       </section>
+      {role === "ADMIN" || role === "SUPER_ADMIN" ? (
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle>Organization Core</CardTitle>
+              <CardDescription>
+                Manage Pulse chains, branches, assignments, and manager
+                relations.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild>
+                <Link href="/admin/organization">Open organization</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </section>
+      ) : null}
     </main>
   );
 }

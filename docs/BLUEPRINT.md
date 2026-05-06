@@ -13,6 +13,9 @@ It combines:
 - Notifications
 - Audit logs
 - Future KPI dashboards and rankings
+- Attendance and KPI file import readiness
+- Arabic/English language support
+- Light/Dark appearance support
 
 The platform must support operational control, approval governance, and clear visibility for all levels of the operations hierarchy.
 
@@ -196,6 +199,39 @@ Pages:
 - `/admin/organization/branches/[branchId]`
 - `/admin/organization/tree`
 - `/super-admin/organization`
+
+
+---
+
+### 3.3.1 External IDs and Source System Mapping
+
+Purpose:
+
+Prepare Pulse to match uploaded attendance, KPI, and order files to the correct internal records.
+
+Core identifiers:
+
+EmployeeProfile:
+
+- shopperId: ID used by the order/order operations system.
+- ibsId: ID used by the staffing/employment company.
+
+Chain:
+
+- orderSystemChainId: chain ID used by the order system.
+
+Branch:
+
+- orderSystemBranchId: branch ID used by the order system.
+
+Rules:
+
+- Uploaded files should match by IDs, not names.
+- Chain names, branch names, and employee names are display/fallback fields only.
+- These IDs are optional during setup but unique when provided.
+- Future KPI files with `chain id`, `branch id`, and `shopper id` must map to these fields.
+- Future attendance files may map by `ibs id`.
+
 
 ---
 
@@ -398,6 +434,54 @@ Future KPI ideas:
 - Error rate
 - Compliance metrics
 
+
+---
+
+### 3.8.1 Data Import Center
+
+Purpose:
+
+Allow Admin/Super Admin to upload attendance and KPI files safely.
+
+Core features:
+
+- Upload attendance files.
+- Upload KPI files.
+- Create import batches.
+- Validate rows before commit.
+- Show valid/invalid row counts.
+- Show failed row reasons.
+- Commit only valid rows.
+- Keep import history.
+- Trace final records back to source file/batch/row.
+
+Matching keys:
+
+KPI/order files:
+
+- `chain id` -> `Chain.orderSystemChainId`
+- `branch id` -> `Branch.orderSystemBranchId`
+- `shopper id` -> `EmployeeProfile.shopperId`
+
+Attendance files:
+
+- `ibs id` -> `EmployeeProfile.ibsId`
+
+Pages:
+
+- `/admin/data-imports`
+- `/admin/data-imports/new`
+- `/admin/data-imports/[batchId]`
+- `/admin/data-imports/[batchId]/errors`
+
+Rules:
+
+- Do not blindly append uploaded rows.
+- Use staging and validation before commit.
+- Prevent duplicates using stable keys.
+- Log who uploaded and committed each file.
+
+
 ---
 
 ### 3.9 Audit Log Module
@@ -454,6 +538,8 @@ Settings:
 - role permissions
 - approval workflow definitions
 - notification preferences
+- language preference: English / Arabic
+- appearance preference: Light / Dark / System
 - security settings
 - file upload limits
 - account setup token expiry
@@ -549,7 +635,12 @@ Settings:
 │   ├── /admin/lifecycle/transfers
 │   ├── /admin/lifecycle/resignations
 │   ├── /admin/notifications
+│   ├── /admin/data-imports
+│   ├── /admin/data-imports/new
+│   ├── /admin/data-imports/[batchId]
 │   ├── /admin/audit-logs
+│   ├── /admin/settings
+│   ├── /admin/settings/preferences
 │   └── /admin/reports
 │
 └── /super-admin
@@ -561,6 +652,7 @@ Settings:
     ├── /super-admin/audit-logs
     ├── /super-admin/security
     ├── /super-admin/settings
+    ├── /super-admin/settings/preferences
     ├── /super-admin/settings/roles
     ├── /super-admin/settings/workflows
     └── /super-admin/system-health
@@ -612,6 +704,8 @@ Settings:
 - Lifecycle
 - Notifications
 - Audit Logs
+- Data Imports
+- Settings
 - Reports
 
 ### Super Admin Sidebar
@@ -623,7 +717,9 @@ Settings:
 - Workflow Settings
 - Role Settings
 - Audit Logs
+- Data Imports
 - Security
+- Settings
 - System Health
 
 ---
@@ -706,6 +802,30 @@ Settings:
 5. Login is disabled.
 6. Assignment is ended.
 7. History remains available.
+
+---
+
+
+### 6.7 Admin Imports Attendance or KPI File
+
+1. Admin opens Data Import Center.
+2. Admin chooses Attendance or KPI import.
+3. Admin uploads the file.
+4. Pulse reads rows into staging.
+5. Pulse validates chain ID, branch ID, and shopper ID or IBS ID.
+6. Pulse shows valid rows, invalid rows, and warnings.
+7. Admin reviews errors.
+8. Admin commits valid rows.
+9. Pulse writes final attendance/KPI records.
+10. Import history remains available with source file and row-level traceability.
+
+### 6.8 User Changes Language or Appearance
+
+1. User opens Settings.
+2. User chooses English or Arabic.
+3. User chooses Light, Dark, or System appearance.
+4. Pulse saves preferences.
+5. UI reloads with correct language direction: LTR for English, RTL for Arabic.
 
 ---
 
@@ -863,5 +983,7 @@ A serious MVP should include:
 13. First-login password setup
 14. Transfer/resignation flows basic
 15. Basic dashboards without advanced KPI complexity
+16. Language and appearance settings
+17. Data import center for attendance/KPI files before advanced KPI reporting
 
 KPIs come after the operational skeleton is stable.

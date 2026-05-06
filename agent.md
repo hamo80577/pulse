@@ -286,6 +286,63 @@ Rules:
 6. Assignment changes must preserve old history with start/end dates.
 7. Manager relationships must be explicit and historical.
 
+
+---
+
+## 6.1 External System Identifiers
+
+Pulse must be designed from the beginning to connect employee, chain, and branch records to external source systems.
+
+### Employee external identifiers
+
+Pickers and Champs may have two important external IDs:
+
+- **shopperId**: the ID used by the order system. This is the primary matching key for order/KPI files.
+- **ibsId**: the ID used by the staffing/employment company. This is the primary matching key for attendance or HR-provider files when available.
+
+Rules:
+
+1. Do not rely on employee names as import matching keys.
+2. `shopperId` and `ibsId` should be optional during manual creation but unique when provided.
+3. Normalize IDs by trimming whitespace.
+4. Never expose sensitive employee data to roles that do not need it.
+5. Data imports must match employees using stable IDs, not display names.
+
+### Chain and branch external identifiers
+
+Each chain and branch can also have order-system identifiers:
+
+- **orderSystemChainId**: the chain ID used by the order system.
+- **orderSystemBranchId**: the branch ID used by the order system.
+
+Rules:
+
+1. These IDs are optional during early setup but unique when provided.
+2. Future KPI/order imports should match:
+   - `chain id` from uploaded file -> `Chain.orderSystemChainId`
+   - `branch id` from uploaded file -> `Branch.orderSystemBranchId`
+   - `shopper id` from uploaded file -> `EmployeeProfile.shopperId`
+3. Attendance imports may match:
+   - `IBS id` from uploaded file -> `EmployeeProfile.ibsId`
+4. Chain/branch names are display fields only and should not be the primary import matching key.
+
+### Import design rule
+
+Do not append uploaded files directly into final KPI or attendance tables. Future imports must use a controlled pipeline:
+
+```text
+Upload file
+  -> Import batch
+  -> Staging rows
+  -> Validation
+  -> Preview errors/warnings
+  -> Commit
+  -> Final attendance/KPI records
+```
+
+This prevents duplicate records, bad IDs, branch mismatches, and untraceable KPI data.
+
+
 ---
 
 ## 7. Core Database Entities
@@ -328,6 +385,8 @@ Fields:
 - id
 - userId
 - nationalId
+- shopperId
+- ibsId
 - address
 - personalPhotoUrl
 - idCardFrontUrl
@@ -344,6 +403,7 @@ Fields:
 - id
 - name
 - code
+- orderSystemChainId
 - status
 - createdAt
 - updatedAt
@@ -356,6 +416,7 @@ Fields:
 - chainId
 - name
 - code
+- orderSystemBranchId
 - address
 - status
 - createdAt
@@ -735,6 +796,55 @@ Status colors should be consistent:
 - Active: green
 - Draft: gray
 
+
+---
+
+## 13.1 Localization, Direction, and Appearance
+
+Pulse must support Arabic and English as a product capability.
+
+### Language support
+
+Required languages:
+
+- English
+- Arabic
+
+Rules:
+
+1. Build UI text through a localization layer instead of hardcoding strings everywhere.
+2. Support right-to-left layout for Arabic and left-to-right layout for English.
+3. Dates, numbers, labels, empty states, validation messages, and navigation labels should be localizable.
+4. Early phases can keep English as the default, but architecture must not block Arabic.
+5. Do not mix Arabic and English randomly in the same UI unless it is intentional data content.
+
+### Appearance support
+
+Pulse must support:
+
+- Light mode
+- Dark mode
+- System preference if practical
+
+Rules:
+
+1. Theme should be controlled through the settings/preferences area.
+2. Use design tokens/CSS variables, not hardcoded colors scattered across components.
+3. Dark mode should preserve readability for long operations sessions.
+4. Theme and language preferences should be saved per user when user settings exist.
+
+### Settings page requirements
+
+The settings area should eventually include:
+
+- Language: English / Arabic
+- Appearance: Light / Dark / System
+- Account/security preferences
+- Future notification preferences
+
+Do not implement full settings prematurely, but do not design components in a way that blocks it.
+
+
 ---
 
 ## 14. Validation Standards
@@ -826,11 +936,13 @@ The correct build order is:
 
 1. Foundation and auth
 2. Organization tree
-3. User and assignment management
-4. Generic approval engine
-5. Notifications
-6. Employee lifecycle flows
-7. KPI dashboards
-8. Reporting and hardening
+3. External ID readiness and localization/theme foundation
+4. User and assignment management
+5. Generic approval engine
+6. Notifications
+7. Employee lifecycle flows
+8. Data import foundation for attendance and KPI files
+9. KPI dashboards
+10. Reporting and hardening
 
 Do not start with KPI dashboards before roles, org scope, and approval engine are stable.

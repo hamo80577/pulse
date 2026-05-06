@@ -272,6 +272,112 @@ docs/specs/phase-02-organization-core.md
 - Assignment history is preserved.
 - Spec file exists.
 
+
+---
+
+## 4.5 Phase 2.6 — External IDs, Localization, and Preferences Foundation
+
+### Goal
+
+Prepare Pulse from the beginning for external data imports, Arabic/English support, and light/dark appearance settings.
+
+This phase exists because attendance and KPI files will later be uploaded from external systems and matched by stable IDs, not names.
+
+### Required spec
+
+```text
+docs/specs/phase-026-external-ids-localization-preferences.md
+```
+
+### Scope
+
+- Add external order-system IDs to Chain and Branch.
+- Add the app preference foundation for language and theme.
+- Add localization architecture scaffolding.
+- Add settings route placeholders where appropriate.
+- Update forms and validation for external IDs.
+- Do not implement file import yet.
+- Do not implement KPI dashboards yet.
+
+### Data Model Changes
+
+Chain:
+
+- `orderSystemChainId` nullable unique
+
+Branch:
+
+- `orderSystemBranchId` nullable unique
+
+User settings / preferences foundation, if implemented in this phase:
+
+- preferredLanguage: `en` / `ar`
+- preferredTheme: `light` / `dark` / `system`
+
+### External ID Rules
+
+- `orderSystemChainId` is the chain ID from the order system.
+- `orderSystemBranchId` is the branch ID from the order system.
+- Both fields are optional during setup but unique when provided.
+- IDs must be trimmed and normalized.
+- Names are display labels and must not be primary import matching keys.
+
+### Localization Rules
+
+- Pulse must be able to support English and Arabic.
+- English can remain default during early development.
+- Arabic must support RTL layout.
+- Avoid hardcoding user-facing strings where a translation layer is practical.
+- Navigation, empty states, validation messages, and form labels should be prepared for localization.
+
+### Appearance Rules
+
+- Pulse must support Light and Dark mode.
+- Store preference per user when user preferences exist.
+- Use theme tokens/CSS variables instead of scattered hardcoded colors.
+- The settings page should expose Language and Appearance controls once settings are implemented.
+
+### Routes
+
+Possible settings routes:
+
+```text
+/admin/settings
+/admin/settings/preferences
+/super-admin/settings
+/super-admin/settings/preferences
+```
+
+If routes are not fully implemented yet, show them as Coming Soon or keep them hidden. Do not create broken links.
+
+### Validation
+
+- External IDs are optional.
+- If provided, external IDs must be unique.
+- Trim whitespace.
+- Reject empty-string IDs after trim.
+- Validate language and theme enum values.
+
+### Audit Logging
+
+Audit changes to:
+
+- chain order-system ID
+- branch order-system ID
+- user language preference
+- user theme preference
+
+### Acceptance Criteria
+
+- Chain can store order-system chain ID.
+- Branch can store order-system branch ID.
+- External IDs are validated and unique when provided.
+- Pulse has a clear localization/theme foundation.
+- No import center is implemented yet.
+- No fake KPI data exists.
+- Spec file exists.
+
+
 ---
 
 ## 5. Phase 3 — User and Employee Profile Management
@@ -292,6 +398,7 @@ docs/specs/phase-03-user-employee-profile-management.md
 - User list
 - User detail
 - Employee sensitive fields
+- Employee external IDs: shopperId and ibsId
 - Upload metadata fields for ID card and personal photo
 - Status management
 - Filters by role/status/chain/branch
@@ -312,6 +419,8 @@ docs/specs/phase-03-user-employee-profile-management.md
 ### Sensitive Fields
 
 - national ID
+- shopper ID
+- IBS ID
 - phone
 - address
 - ID card image
@@ -330,7 +439,9 @@ docs/specs/phase-03-user-employee-profile-management.md
 - role valid
 - phone format
 - national ID format
-- unique username/email/phone/national ID according to business rules
+- shopper ID format if provided
+- IBS ID format if provided
+- unique username/email/phone/national ID/shopper ID/IBS ID according to business rules
 - file type/size if upload is implemented
 
 ### Audit Logging
@@ -535,6 +646,8 @@ Champ -> Area Manager -> Admin -> Picker Account Created -> First Login Setup
 
 - name
 - national ID
+- shopper ID
+- IBS ID
 - phone
 - address
 - ID card image
@@ -739,6 +852,50 @@ Role-specific shell may show the same notification center with scoped data.
 - Mark as read works.
 - Spec file exists.
 
+
+---
+
+## 11.5 Phase 9.5 — Settings, Language, and Appearance
+
+### Goal
+
+Expose user-facing settings for language and appearance.
+
+### Required spec
+
+```text
+docs/specs/phase-095-settings-language-appearance.md
+```
+
+### Scope
+
+- Settings page for supported roles where appropriate.
+- Language preference: English / Arabic.
+- Appearance preference: Light / Dark / System if practical.
+- Persist preferences per user.
+- Apply RTL layout when Arabic is selected.
+- Keep settings secure and scoped.
+
+### Routes
+
+```text
+/settings
+/admin/settings
+/super-admin/settings
+```
+
+Use role-specific route structure if the current app architecture requires it.
+
+### Acceptance Criteria
+
+- User can switch language preference.
+- User can switch light/dark mode.
+- Preference persists after reload.
+- Arabic layout uses RTL.
+- English layout uses LTR.
+- Spec file exists.
+
+
 ---
 
 ## 12. Phase 10 — Role Dashboards and Basic Reporting
@@ -809,6 +966,91 @@ Super Admin:
 - Data is scoped correctly.
 - No unauthorized data leakage.
 - Spec file exists.
+
+
+---
+
+## 12.5 Phase 10.5 — Attendance and KPI Import Center
+
+### Goal
+
+Build a controlled import center for uploading attendance and KPI files into Pulse without corrupting final reporting data.
+
+### Required spec
+
+```text
+docs/specs/phase-105-attendance-kpi-import-center.md
+```
+
+### Scope
+
+- Upload attendance files.
+- Upload KPI files.
+- Create import batches.
+- Store raw/staging rows.
+- Validate rows before commit.
+- Show preview, valid rows, invalid rows, and warnings.
+- Commit valid data into final attendance/KPI tables.
+- Keep full import history and audit logs.
+- Prevent duplicate appends.
+
+### Matching Rules
+
+Uploaded KPI/order files may include:
+
+- chain id
+- branch id
+- shopper id
+
+Pulse must match these to:
+
+- `Chain.orderSystemChainId`
+- `Branch.orderSystemBranchId`
+- `EmployeeProfile.shopperId`
+
+Attendance files may use:
+
+- `EmployeeProfile.ibsId`
+
+Names in files are display/fallback fields only and should not be primary matching keys.
+
+### Data Pipeline
+
+```text
+Upload file
+  -> ImportBatch
+  -> ImportRow staging
+  -> Validation
+  -> Preview errors/warnings
+  -> Commit
+  -> AttendanceRecord / MetricValue
+```
+
+### Suggested Tables
+
+- ImportBatch
+- ImportRow
+- AttendanceRecord
+- MetricDefinition
+- MetricValue
+
+### Import Behavior
+
+- Do not blindly append duplicated rows.
+- Use upsert or duplicate-detection rules based on the data type.
+- Save source batch and source row references on final records.
+- Show failed row reasons.
+- Allow re-import only through controlled rules.
+
+### Acceptance Criteria
+
+- Admin/Super Admin can upload attendance and KPI files.
+- System validates IDs before commit.
+- Bad rows do not enter final tables.
+- Import history is visible.
+- Imported records can be traced back to file/batch/row.
+- Spec file exists.
+
 
 ---
 
@@ -947,15 +1189,18 @@ Run phases in this order:
 1. Phase 0 — Project Bootstrap
 2. Phase 1 — Auth, Roles, and Protected Layouts
 3. Phase 2 — Organization Core
-4. Phase 3 — User and Employee Profile Management
-5. Phase 4 — Generic Approval Engine
-6. Phase 5 — Annual Leave Request
-7. Phase 6 — Add Picker and Onboarding
-8. Phase 7 — Add Champ Request
-9. Phase 8 — Transfers and Resignations
-10. Phase 9 — Notification Center
-11. Phase 10 — Role Dashboards and Basic Reporting
-12. Phase 11 — KPI Foundation
-13. Phase 12 — Hardening and Production Readiness
+4. Phase 2.6 — External IDs, Localization, and Preferences Foundation
+5. Phase 3 — User and Employee Profile Management
+6. Phase 4 — Generic Approval Engine
+7. Phase 5 — Annual Leave Request
+8. Phase 6 — Add Picker and Onboarding
+9. Phase 7 — Add Champ Request
+10. Phase 8 — Transfers and Resignations
+11. Phase 9 — Notification Center
+12. Phase 9.5 — Settings, Language, and Appearance
+13. Phase 10 — Role Dashboards and Basic Reporting
+14. Phase 10.5 — Attendance and KPI Import Center
+15. Phase 11 — KPI Foundation
+16. Phase 12 — Hardening and Production Readiness
 
 Do not skip directly to dashboards before the organization, auth, and approval engine are stable.

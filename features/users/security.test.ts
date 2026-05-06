@@ -24,4 +24,12 @@ describe("user management security", () => {
     expect(content).not.toContain("passwordHash: true");
     expect(content).not.toContain("tokenHash: true");
   });
+
+  it("labels sensitive image URL fields as metadata placeholders in the user form", () => {
+    const content = readFileSync("features/users/components/user-form.tsx", "utf8");
+
+    expect(content).toContain("Metadata URL only");
+    expect(content).toContain("Phase 3 stores image references only");
+    expect(content).not.toContain('type="file"');
+  });
 });

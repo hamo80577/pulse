@@ -2,6 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { createSecretToken, hashToken } from "./tokens";
 import type { Role, SessionUser } from "./types";
@@ -14,6 +15,22 @@ import {
 
 const sessionCookieName = "pulse_session";
 const sessionDurationMs = 1000 * 60 * 60 * 24 * 7;
+
+const safeSessionUserSelect = {
+  id: true,
+  name: true,
+  role: true,
+  status: true,
+  mustChangePassword: true,
+} satisfies Prisma.UserSelect;
+
+const sessionSelect = {
+  id: true,
+  expiresAt: true,
+  user: {
+    select: safeSessionUserSelect,
+  },
+} satisfies Prisma.SessionSelect;
 
 export type CurrentSession = {
   id: string;
@@ -76,9 +93,7 @@ export async function getCurrentSession(): Promise<CurrentSession | null> {
     where: {
       tokenHash: hashToken(token),
     },
-    include: {
-      user: true,
-    },
+    select: sessionSelect,
   });
 
   if (!session || session.expiresAt <= new Date()) {

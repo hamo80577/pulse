@@ -63,6 +63,16 @@ describe("auth validation", () => {
     expect(result.success).toBe(true);
   });
 
+  it("does not require symbols or mixed case for first-login passwords", () => {
+    const result = firstLoginSchema.safeParse({
+      token: "setup-token",
+      password: "abcdef",
+      confirmPassword: "abcdef",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("rejects reusing the current authenticated password", async () => {
     const currentPasswordHash = await hashPassword("abc123");
     const result = await validateFirstLoginInput(

@@ -67,16 +67,19 @@ export function UserForm({ user }: { user?: UserDetail }) {
 
       <div className="grid gap-4 md:grid-cols-3">
         <Field
+          description="Phase 3 stores image references only. Upload and object storage are not implemented yet."
           label="Personal Photo URL"
           name="personalPhotoUrl"
           value={profile?.personalPhotoUrl}
         />
         <Field
+          description="Metadata URL only. Use this as a placeholder for a future controlled file reference."
           label="ID Card Front URL"
           name="idCardFrontUrl"
           value={profile?.idCardFrontUrl}
         />
         <Field
+          description="Metadata URL only. Use this as a placeholder for a future controlled file reference."
           label="ID Card Back URL"
           name="idCardBackUrl"
           value={profile?.idCardBackUrl}
@@ -97,12 +100,14 @@ function Field({
   value,
   type = "text",
   required = false,
+  description,
 }: {
   label: string;
   name: string;
   value?: string | null;
   type?: string;
   required?: boolean;
+  description?: string;
 }) {
   return (
     <div className="grid gap-2">
@@ -114,6 +119,9 @@ function Field({
         required={required}
         type={type}
       />
+      {description ? (
+        <p className="text-xs leading-5 text-muted-foreground">{description}</p>
+      ) : null}
     </div>
   );
 }

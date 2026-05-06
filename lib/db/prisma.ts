@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
+import { getDatabaseUrl } from "./database-url";
 import { isCompatiblePrismaClient } from "./prisma-client-guard";
 
 const globalForPrisma = globalThis as unknown as {
@@ -7,9 +8,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const adapter = new PrismaPg({
-  connectionString:
-    process.env.DATABASE_URL ??
-    "postgresql://pulse_app:replace-with-a-local-password@localhost:5433/pulse_local?schema=public",
+  connectionString: getDatabaseUrl(),
 });
 
 function createPrismaClient() {

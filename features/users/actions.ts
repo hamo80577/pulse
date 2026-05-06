@@ -13,6 +13,7 @@ import {
 } from "@/lib/validation/users";
 import {
   buildCreateUserData,
+  buildEmployeeProfileAuditMetadata,
   buildUpdateUserData,
   isUniqueConstraintError,
   toAuditJson,
@@ -161,20 +162,25 @@ export async function updateUserAndProfileAction(
   const updateData = buildUpdateUserData(parsed.data);
 
   try {
-    await prisma.$transaction([
-      prisma.user.update({
+    await prisma.$transaction(async (transaction) => {
+      await transaction.user.update({
         where: { id: userId },
         data: updateData.user,
-      }),
-      prisma.employeeProfile.upsert({
+      });
+      const savedProfile = await transaction.employeeProfile.upsert({
         where: { userId },
         create: {
           userId,
           ...updateData.profile,
         },
         update: updateData.profile,
-      }),
-      prisma.auditLog.create({
+      });
+      const profileAudit = buildEmployeeProfileAuditMetadata({
+        existingProfile: existing.employeeProfile,
+        savedProfile,
+      });
+
+      await transaction.auditLog.create({
         data: {
           actorUserId: session.user.id,
           action: "USER_UPDATED",
@@ -183,20 +189,18 @@ export async function updateUserAndProfileAction(
           oldValueJson: toAuditJson(existing),
           newValueJson: toAuditJson({ user: updateData.user, profile: updateData.profile }),
         },
-      }),
-      prisma.auditLog.create({
+      });
+      await transaction.auditLog.create({
         data: {
           actorUserId: session.user.id,
-          action: existing.employeeProfile
-            ? "EMPLOYEE_PROFILE_UPDATED"
-            : "EMPLOYEE_PROFILE_CREATED",
+          action: profileAudit.action,
           entityType: "EmployeeProfile",
-          entityId: existing.employeeProfile?.id ?? null,
-          oldValueJson: toAuditJson(existing.employeeProfile),
-          newValueJson: toAuditJson(updateData.profile),
+          entityId: profileAudit.entityId,
+          oldValueJson: profileAudit.oldValueJson,
+          newValueJson: profileAudit.newValueJson,
         },
-      }),
-    ]);
+      });
+    });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
       return { error: uniqueErrorMessage() };

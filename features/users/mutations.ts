@@ -52,6 +52,25 @@ export function buildUpdateUserData(input: UserUpdateInput) {
   };
 }
 
+type EmployeeProfileAuditInput = {
+  existingProfile: Prisma.EmployeeProfileGetPayload<object> | null;
+  savedProfile: Prisma.EmployeeProfileGetPayload<object>;
+};
+
+export function buildEmployeeProfileAuditMetadata({
+  existingProfile,
+  savedProfile,
+}: EmployeeProfileAuditInput) {
+  return {
+    action: existingProfile
+      ? "EMPLOYEE_PROFILE_UPDATED"
+      : "EMPLOYEE_PROFILE_CREATED",
+    entityId: savedProfile.id,
+    oldValueJson: toAuditJson(existingProfile),
+    newValueJson: toAuditJson(savedProfile),
+  };
+}
+
 export function isUniqueConstraintError(error: unknown) {
   return (
     typeof error === "object" &&

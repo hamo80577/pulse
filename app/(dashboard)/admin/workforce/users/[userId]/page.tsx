@@ -3,8 +3,13 @@ import { notFound } from "next/navigation";
 import { ErpShell } from "@/components/layout/erp-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { AssignmentSummary } from "@/features/users/components/assignment-summary";
 import { UserDetailSections } from "@/features/users/components/user-detail";
-import { getUserDetail } from "@/features/users/queries";
+import {
+  getUserAssignmentFormOptions,
+  getUserAssignmentSummary,
+  getUserDetail,
+} from "@/features/users/queries";
 import { requireRole } from "@/lib/auth/session";
 
 export default async function WorkforceUserDetailPage({
@@ -19,6 +24,11 @@ export default async function WorkforceUserDetailPage({
   if (!user) {
     notFound();
   }
+
+  const [summary, formOptions] = await Promise.all([
+    getUserAssignmentSummary(user.id),
+    getUserAssignmentFormOptions(user),
+  ]);
 
   return (
     <ErpShell user={session.user}>
@@ -36,7 +46,23 @@ export default async function WorkforceUserDetailPage({
         description={user.username}
         title={user.name}
       />
+      <nav className="flex flex-wrap gap-2">
+        {["Overview", "Profile", "Assignments", "Manager Relations", "Security"].map(
+          (section) => (
+            <Button asChild key={section} size="sm" variant="outline">
+              <a href={`#${section.toLowerCase().replaceAll(" ", "-")}`}>
+                {section}
+              </a>
+            </Button>
+          ),
+        )}
+      </nav>
       <UserDetailSections user={user} />
+      <AssignmentSummary
+        formOptions={formOptions}
+        summary={summary}
+        user={user}
+      />
     </ErpShell>
   );
 }

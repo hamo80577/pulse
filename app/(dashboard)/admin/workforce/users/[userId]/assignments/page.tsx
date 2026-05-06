@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { AssignmentSummary } from "@/features/users/components/assignment-summary";
 import {
+  getUserAssignmentFormOptions,
   getUserAssignmentSummary,
   getUserDetail,
 } from "@/features/users/queries";
@@ -29,6 +30,8 @@ export default async function WorkforceUserAssignmentsPage({
     notFound();
   }
 
+  const formOptions = await getUserAssignmentFormOptions(user);
+
   return (
     <ErpShell user={session.user}>
       <PageHeader
@@ -40,7 +43,7 @@ export default async function WorkforceUserAssignmentsPage({
         description="Branch assignments and manager relations."
         title={`${user.name} Assignments`}
       />
-      <AssignmentSummary summary={summary} />
+      <AssignmentSummary formOptions={formOptions} summary={summary} user={user} />
     </ErpShell>
   );
 }

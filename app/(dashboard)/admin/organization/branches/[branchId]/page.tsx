@@ -7,10 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { BranchForm } from "@/features/organization/components/branch-form";
-import { AssignmentForm } from "@/features/organization/components/assignment-form";
-import { endBranchAssignmentAction } from "@/features/organization/actions";
 import {
-  getAssignmentFormOptions,
   getBranchDetail,
   getBranchFormOptions,
 } from "@/features/organization/queries";
@@ -26,10 +23,9 @@ export default async function BranchDetailPage({
     "ADMIN",
     `/admin/organization/branches/${branchId}`,
   );
-  const [branch, branchOptions, assignmentOptions] = await Promise.all([
+  const [branch, branchOptions] = await Promise.all([
     getBranchDetail(branchId),
     getBranchFormOptions(),
-    getAssignmentFormOptions(),
   ]);
 
   if (!branch) {
@@ -56,18 +52,45 @@ export default async function BranchDetailPage({
               <BranchForm branch={branch} chains={branchOptions.chains} />
           </SectionCard>
           <SectionCard
-            description="Existing active Pickers and Champs only."
-            title="Assign Person"
+            description="Assignments are managed from employee profiles."
+            title="Assigned Employees"
+            action={
+              <Button asChild size="sm" variant="outline">
+                <Link href="/admin/workforce/users">Assign employee from Workforce</Link>
+              </Button>
+            }
           >
-              <AssignmentForm
-                branches={assignmentOptions.branches}
-                defaultBranchId={branch.id}
-                users={assignmentOptions.users}
-              />
+            <div className="grid gap-3">
+              {branch.assignments.filter((assignment) => assignment.status === "ACTIVE").length === 0 ? (
+                <EmptyState title="No active employees assigned" />
+              ) : (
+                branch.assignments
+                  .filter((assignment) => assignment.status === "ACTIVE")
+                  .map((assignment) => (
+                    <div
+                      className="flex items-center justify-between gap-4 rounded-md border p-3"
+                      key={assignment.id}
+                    >
+                      <div>
+                        <Link
+                          className="font-medium"
+                          href={`/admin/workforce/users/${assignment.user.id}`}
+                        >
+                          {assignment.user.name}
+                        </Link>
+                        <p className="text-sm text-muted-foreground">
+                          {assignment.roleAtBranch}
+                        </p>
+                      </div>
+                      <StatusBadge status={assignment.status} />
+                    </div>
+                  ))
+              )}
+            </div>
           </SectionCard>
         </section>
         <SectionCard
-          description="End an active assignment before replacement."
+          description="Assignment changes are made from the employee profile."
           title="Assignment History"
         >
             {branch.assignments.length === 0 ? (
@@ -86,20 +109,11 @@ export default async function BranchDetailPage({
                       </p>
                     </div>
                     <StatusBadge status={assignment.status} />
-                    {assignment.status === "ACTIVE" ? (
-                      <form action={endBranchAssignmentAction}>
-                        <input
-                          name="assignmentId"
-                          type="hidden"
-                          value={assignment.id}
-                        />
-                        <Button size="sm" type="submit" variant="outline">
-                          End assignment
-                        </Button>
-                      </form>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">Ended</span>
-                    )}
+                    <Button asChild size="sm" variant="outline">
+                      <Link href={`/admin/workforce/users/${assignment.user.id}`}>
+                        Open profile
+                      </Link>
+                    </Button>
                   </div>
                 ))}
               </div>

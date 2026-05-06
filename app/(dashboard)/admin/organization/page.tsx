@@ -3,30 +3,14 @@ import { ErpShell } from "@/components/layout/erp-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { ActionCard } from "@/components/ui/action-card";
-import { EmptyState } from "@/components/ui/empty-state";
 import { MetricCard } from "@/components/ui/metric-card";
-import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { AssignmentForm } from "@/features/organization/components/assignment-form";
-import { ManagerRelationForm } from "@/features/organization/components/manager-relation-form";
-import { endManagerRelationAction } from "@/features/organization/actions";
-import {
-  getActiveManagerRelations,
-  getAssignmentFormOptions,
-  getManagerRelationFormOptions,
-  getOrganizationOverview,
-} from "@/features/organization/queries";
+import { getOrganizationOverview } from "@/features/organization/queries";
 import { requireRole } from "@/lib/auth/session";
 
 export default async function OrganizationPage() {
   const session = await requireRole("ADMIN", "/admin/organization");
-  const [overview, assignmentOptions, managerOptions, activeRelations] =
-    await Promise.all([
-      getOrganizationOverview(),
-      getAssignmentFormOptions(),
-      getManagerRelationFormOptions(),
-      getActiveManagerRelations(),
-    ]);
+  const overview = await getOrganizationOverview();
 
   return (
     <ErpShell user={session.user}>
@@ -58,11 +42,11 @@ export default async function OrganizationPage() {
           <WorkbenchStep done={overview.branchCount > 0} label="2. Branches" />
           <WorkbenchStep
             done={overview.activeAssignmentCount > 0}
-            label="3. Assign People"
+            label="3. Workforce Assignments"
           />
           <WorkbenchStep
             done={overview.activeRelationCount > 0}
-            label="4. Manager Relations"
+            label="4. Reporting Structure"
           />
           <WorkbenchStep done={overview.chainCount > 0} label="5. Review Tree" />
         </section>
@@ -108,57 +92,25 @@ export default async function OrganizationPage() {
         </section>
 
         <section className="grid gap-4 lg:grid-cols-2">
-          <SectionCard
-            description="Existing active Pickers and Champs only."
-            title="Assign People"
-          >
-              <AssignmentForm
-                branches={assignmentOptions.branches}
-                users={assignmentOptions.users}
-              />
-          </SectionCard>
-
-          <SectionCard
-            description="Supported role pairs only."
-            title="Manager Relations"
-          >
-            <ManagerRelationForm users={managerOptions.users} />
-          </SectionCard>
+          <ActionCard
+            action={
+              <Button asChild>
+                <Link href="/admin/workforce">Open Workforce</Link>
+              </Button>
+            }
+            description="Assignments are managed from employee profiles."
+            title="Employee Assignments"
+          />
+          <ActionCard
+            action={
+              <Button asChild variant="outline">
+                <Link href="/admin/organization/tree">Review Organization Tree</Link>
+              </Button>
+            }
+            description="Use the tree to review chains, branches, assignments, and reporting structure."
+            title="Structure Review"
+          />
         </section>
-
-        <SectionCard
-          description="End a relation before creating a replacement."
-          title="Active Manager Relations"
-        >
-            {activeRelations.length === 0 ? (
-              <EmptyState title="No active manager relations" />
-            ) : (
-              <div className="grid gap-3">
-                {activeRelations.map((relation) => (
-                  <div
-                    className="flex items-center justify-between gap-4 rounded-md border p-4"
-                    key={relation.id}
-                  >
-                    <div>
-                      <p className="font-medium">
-                        {relation.manager.name} to {relation.employee.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {relation.relationType.replaceAll("_", " ")}
-                      </p>
-                    </div>
-                    <StatusBadge status={relation.status} />
-                    <form action={endManagerRelationAction}>
-                      <input name="relationId" type="hidden" value={relation.id} />
-                      <Button size="sm" type="submit" variant="outline">
-                        End relation
-                      </Button>
-                    </form>
-                  </div>
-                ))}
-              </div>
-            )}
-        </SectionCard>
     </ErpShell>
   );
 }

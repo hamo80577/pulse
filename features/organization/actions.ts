@@ -363,6 +363,10 @@ export async function createBranchAssignmentAction(
   });
 
   revalidatePath("/admin/organization");
+  revalidatePath("/admin/organization/tree");
+  revalidatePath(`/admin/organization/branches/${assignment.branchId}`);
+  revalidatePath(`/admin/workforce/users/${assignment.userId}`);
+  revalidatePath(`/admin/workforce/users/${assignment.userId}/assignments`);
   return { success: "Assignment created." };
 }
 
@@ -400,6 +404,10 @@ export async function endBranchAssignmentAction(formData: FormData) {
   });
 
   revalidatePath("/admin/organization");
+  revalidatePath("/admin/organization/tree");
+  revalidatePath(`/admin/organization/branches/${assignment.branchId}`);
+  revalidatePath(`/admin/workforce/users/${assignment.userId}`);
+  revalidatePath(`/admin/workforce/users/${assignment.userId}/assignments`);
 }
 
 export async function createManagerRelationAction(
@@ -484,6 +492,10 @@ export async function createManagerRelationAction(
   });
 
   revalidatePath("/admin/organization");
+  revalidatePath(`/admin/workforce/users/${relation.employeeUserId}`);
+  revalidatePath(`/admin/workforce/users/${relation.employeeUserId}/assignments`);
+  revalidatePath(`/admin/workforce/users/${relation.managerUserId}`);
+  revalidatePath(`/admin/workforce/users/${relation.managerUserId}/assignments`);
   return { success: "Manager relation created." };
 }
 
@@ -521,4 +533,8 @@ export async function endManagerRelationAction(formData: FormData) {
   });
 
   revalidatePath("/admin/organization");
+  revalidatePath(`/admin/workforce/users/${relation.employeeUserId}`);
+  revalidatePath(`/admin/workforce/users/${relation.employeeUserId}/assignments`);
+  revalidatePath(`/admin/workforce/users/${relation.managerUserId}`);
+  revalidatePath(`/admin/workforce/users/${relation.managerUserId}/assignments`);
 }

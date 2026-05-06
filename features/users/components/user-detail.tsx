@@ -9,55 +9,59 @@ export function UserDetailSections({ user }: { user: UserDetail }) {
   const profile = user.employeeProfile;
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <SectionCard description={user.username} title="Identity">
-        <dl className="grid gap-3 text-sm">
-          <Row label="Name" value={user.name} />
-          <Row label="Email" value={user.email ?? "Not set"} />
-          <Row label="Phone" value={user.phone ?? "Not set"} />
-        </dl>
-      </SectionCard>
-      <SectionCard title="Account">
-        <div className="grid gap-4">
-          <div className="flex flex-wrap gap-2">
-            <StatusBadge status={user.role} />
-            <StatusBadge status={user.status} />
-            <StatusBadge
-              status={user.mustChangePassword ? "Password reset required" : "Password current"}
-            />
+    <div className="grid gap-4">
+      <div className="grid gap-4 lg:grid-cols-2" id="overview">
+        <SectionCard description={user.username} title="Overview">
+          <dl className="grid gap-3 text-sm">
+            <Row label="Name" value={user.name} />
+            <Row label="Email" value={user.email ?? "Not set"} />
+            <Row label="Phone" value={user.phone ?? "Not set"} />
+          </dl>
+        </SectionCard>
+        <SectionCard title="Security" description="Account state and password controls.">
+          <div className="grid gap-4" id="security">
+            <div className="flex flex-wrap gap-2">
+              <StatusBadge status={user.role} />
+              <StatusBadge status={user.status} />
+              <StatusBadge
+                status={user.mustChangePassword ? "Password reset required" : "Password current"}
+              />
+            </div>
+            <form action={forcePasswordResetAction}>
+              <input name="userId" type="hidden" value={user.id} />
+              <Button size="sm" type="submit" variant="outline">
+                Force password reset
+              </Button>
+            </form>
           </div>
-          <form action={forcePasswordResetAction}>
-            <input name="userId" type="hidden" value={user.id} />
-            <Button size="sm" type="submit" variant="outline">
-              Force password reset
+        </SectionCard>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2" id="profile">
+        <SectionCard
+          action={
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/admin/workforce/users/${user.id}/profile`}>Edit</Link>
             </Button>
-          </form>
-        </div>
-      </SectionCard>
-      <SectionCard
-        action={
-          <Button asChild size="sm" variant="outline">
-            <Link href={`/admin/workforce/users/${user.id}/profile`}>Edit</Link>
-          </Button>
-        }
-        title="Employee Profile"
-      >
-        <dl className="grid gap-3 text-sm">
-          <Row label="Employment status" value={profile?.employmentStatus ?? "Not set"} />
-          <Row
-            label="Hire date"
-            value={profile?.hireDate?.toISOString().slice(0, 10) ?? "Not set"}
-          />
-          <Row label="Address" value={profile?.address ?? "Not set"} />
-        </dl>
-      </SectionCard>
-      <SectionCard title="External IDs">
-        <dl className="grid gap-3 text-sm">
-          <Row label="National ID" value={profile?.nationalId ?? "Not set"} />
-          <Row label="Shopper ID" value={profile?.shopperId ?? "Not set"} />
-          <Row label="IBS ID" value={profile?.ibsId ?? "Not set"} />
-        </dl>
-      </SectionCard>
+          }
+          title="Profile"
+        >
+          <dl className="grid gap-3 text-sm">
+            <Row label="Employment status" value={profile?.employmentStatus ?? "Not set"} />
+            <Row
+              label="Hire date"
+              value={profile?.hireDate?.toISOString().slice(0, 10) ?? "Not set"}
+            />
+            <Row label="Address" value={profile?.address ?? "Not set"} />
+          </dl>
+        </SectionCard>
+        <SectionCard title="External IDs">
+          <dl className="grid gap-3 text-sm">
+            <Row label="National ID" value={profile?.nationalId ?? "Not set"} />
+            <Row label="Shopper ID" value={profile?.shopperId ?? "Not set"} />
+            <Row label="IBS ID" value={profile?.ibsId ?? "Not set"} />
+          </dl>
+        </SectionCard>
+      </div>
     </div>
   );
 }

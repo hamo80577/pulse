@@ -75,7 +75,7 @@ export function BranchForm({ chains, branch }: BranchFormProps) {
           defaultValue={branch?.code ?? ""}
           id="code"
           name="code"
-          placeholder="Optional code"
+          placeholder="Optional"
         />
       </div>
       <div className="grid gap-2">
@@ -84,7 +84,7 @@ export function BranchForm({ chains, branch }: BranchFormProps) {
           defaultValue={branch?.address ?? ""}
           id="address"
           name="address"
-          placeholder="Optional address"
+          placeholder="Optional"
         />
       </div>
       <div className="grid gap-2">

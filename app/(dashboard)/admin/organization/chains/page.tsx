@@ -1,13 +1,10 @@
 import Link from "next/link";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { ErpShell } from "@/components/layout/erp-shell";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SectionCard } from "@/components/ui/section-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { getChains } from "@/features/organization/queries";
 import { requireRole } from "@/lib/auth/session";
 
@@ -16,29 +13,27 @@ export default async function ChainsPage() {
   const chains = await getChains();
 
   return (
-    <DashboardShell user={session.user}>
-      <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10">
-        <section className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-3">
-            <h1 className="text-3xl font-semibold tracking-normal text-foreground">
-              Chains
-            </h1>
-            <p className="max-w-2xl text-base leading-7 text-muted-foreground">
-              Create and maintain partner chain records.
-            </p>
-          </div>
+    <ErpShell user={session.user}>
+        <PageHeader
+          actions={
           <Button asChild>
             <Link href="/admin/organization/chains/new">New chain</Link>
           </Button>
-        </section>
-        <Card>
-          <CardHeader>
-            <CardTitle>Chain list</CardTitle>
-            <CardDescription>Real chain records in Pulse.</CardDescription>
-          </CardHeader>
-          <CardContent>
+          }
+          description="Create and maintain partner chain records."
+          title="Chains"
+        />
+        <SectionCard description="Real chain records in Pulse." title="Chain List">
             {chains.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No chains yet.</p>
+              <EmptyState
+                action={
+                  <Button asChild>
+                    <Link href="/admin/organization/chains/new">Create chain</Link>
+                  </Button>
+                }
+                description="Branches can be added after the first active chain exists."
+                title="No chains yet"
+              />
             ) : (
               <div className="grid gap-3">
                 {chains.map((chain) => (
@@ -57,13 +52,12 @@ export default async function ChainsPage() {
                       <p>{chain.status}</p>
                       <p>{chain._count.branches} branches</p>
                     </div>
+                    <StatusBadge status={chain.status} />
                   </Link>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
-      </main>
-    </DashboardShell>
+        </SectionCard>
+    </ErpShell>
   );
 }

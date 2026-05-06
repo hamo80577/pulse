@@ -1,13 +1,15 @@
-import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { RoleDashboard } from "@/components/dashboards/role-dashboard";
+import { ErpDashboard } from "@/components/dashboards/erp-dashboard";
+import { ErpShell } from "@/components/layout/erp-shell";
+import { getOrganizationOverview } from "@/features/organization/queries";
 import { requireRole } from "@/lib/auth/session";
 
 export default async function AdminPage() {
   const session = await requireRole("ADMIN", "/admin");
+  const overview = await getOrganizationOverview();
 
   return (
-    <DashboardShell user={session.user}>
-      <RoleDashboard role="ADMIN" user={session.user} />
-    </DashboardShell>
+    <ErpShell user={session.user}>
+      <ErpDashboard overview={overview} user={session.user} />
+    </ErpShell>
   );
 }

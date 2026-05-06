@@ -1,14 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { ErpShell } from "@/components/layout/erp-shell";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SectionCard } from "@/components/ui/section-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { ChainForm } from "@/features/organization/components/chain-form";
 import { getChainDetail } from "@/features/organization/queries";
 import { requireRole } from "@/lib/auth/session";
@@ -30,31 +27,30 @@ export default async function ChainDetailPage({
   }
 
   return (
-    <DashboardShell user={session.user}>
-      <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10">
-        <Button asChild className="w-fit" variant="outline">
+    <ErpShell user={session.user}>
+        <PageHeader
+          actions={
+          <Button asChild variant="outline">
           <Link href="/admin/organization/chains">Back to chains</Link>
         </Button>
+          }
+          description={chain.code ?? "No code"}
+          title={chain.name}
+        />
         <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <Card>
-            <CardHeader>
-              <CardTitle>Edit chain</CardTitle>
-              <CardDescription>{chain.name}</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <SectionCard description="Update chain status or code." title="Chain Details">
               <ChainForm chain={chain} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Branches</CardTitle>
-              <CardDescription>Branches assigned to this chain.</CardDescription>
-            </CardHeader>
-            <CardContent>
+          </SectionCard>
+          <SectionCard description="Branches assigned to this chain." title="Branches">
               {chain.branches.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  No branches in this chain.
-                </p>
+                <EmptyState
+                  action={
+                    <Button asChild>
+                      <Link href="/admin/organization/branches/new">Create branch</Link>
+                    </Button>
+                  }
+                  title="No branches in this chain"
+                />
               ) : (
                 <div className="grid gap-3">
                   {chain.branches.map((branch) => (
@@ -64,17 +60,13 @@ export default async function ChainDetailPage({
                       key={branch.id}
                     >
                       <span className="font-medium">{branch.name}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {branch.status}
-                      </span>
+                      <StatusBadge status={branch.status} />
                     </Link>
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+          </SectionCard>
         </section>
-      </main>
-    </DashboardShell>
+    </ErpShell>
   );
 }

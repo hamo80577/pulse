@@ -1,13 +1,8 @@
 import Link from "next/link";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { ErpShell } from "@/components/layout/erp-shell";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { SectionCard } from "@/components/ui/section-card";
 import { BranchForm } from "@/features/organization/components/branch-form";
 import { getBranchFormOptions } from "@/features/organization/queries";
 import { requireRole } from "@/lib/auth/session";
@@ -17,21 +12,21 @@ export default async function NewBranchPage() {
   const { chains } = await getBranchFormOptions();
 
   return (
-    <DashboardShell user={session.user}>
-      <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-8 px-6 py-10">
-        <Button asChild className="w-fit" variant="outline">
+    <ErpShell user={session.user}>
+        <PageHeader
+          actions={
+          <Button asChild variant="outline">
           <Link href="/admin/organization/branches">Back to branches</Link>
         </Button>
-        <Card>
-          <CardHeader>
-            <CardTitle>New branch</CardTitle>
-            <CardDescription>Create a branch under an active chain.</CardDescription>
-          </CardHeader>
-          <CardContent>
+          }
+          description="Create a branch under an active chain."
+          title="New Branch"
+        />
+        <div className="max-w-3xl">
+          <SectionCard description="Branch belongs to one chain." title="Branch Details">
             <BranchForm chains={chains} />
-          </CardContent>
-        </Card>
-      </main>
-    </DashboardShell>
+          </SectionCard>
+        </div>
+    </ErpShell>
   );
 }

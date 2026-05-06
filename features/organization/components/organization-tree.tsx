@@ -1,4 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 type OrganizationTreeProps = {
   chains: Array<{
@@ -23,11 +25,7 @@ type OrganizationTreeProps = {
 
 export function OrganizationTree({ chains }: OrganizationTreeProps) {
   if (chains.length === 0) {
-    return (
-      <p className="text-sm leading-6 text-muted-foreground">
-        No chains exist yet. Create a chain to start the organization tree.
-      </p>
-    );
+    return <EmptyState title="No chains yet" description="Create a chain to start the organization tree." />;
   }
 
   return (
@@ -37,9 +35,7 @@ export function OrganizationTree({ chains }: OrganizationTreeProps) {
           <CardHeader>
             <CardTitle className="flex items-center justify-between gap-3">
               <span>{chain.name}</span>
-              <span className="text-sm font-normal text-muted-foreground">
-                {chain.status}
-              </span>
+              <StatusBadge status={chain.status} />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -53,9 +49,7 @@ export function OrganizationTree({ chains }: OrganizationTreeProps) {
                   <div key={branch.id} className="rounded-md border p-4">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="font-medium">{branch.name}</h2>
-                      <span className="text-xs text-muted-foreground">
-                        {branch.status}
-                      </span>
+                      <StatusBadge status={branch.status} />
                     </div>
                     {branch.assignments.length === 0 ? (
                       <p className="mt-3 text-sm text-muted-foreground">

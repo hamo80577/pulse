@@ -43,7 +43,7 @@ export function ChainForm({ chain }: ChainFormProps) {
           defaultValue={chain?.code ?? ""}
           id="code"
           name="code"
-          placeholder="Optional code"
+          placeholder="Optional"
         />
       </div>
       <div className="grid gap-2">

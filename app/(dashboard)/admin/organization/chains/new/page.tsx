@@ -1,13 +1,8 @@
 import Link from "next/link";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { ErpShell } from "@/components/layout/erp-shell";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { SectionCard } from "@/components/ui/section-card";
 import { ChainForm } from "@/features/organization/components/chain-form";
 import { requireRole } from "@/lib/auth/session";
 
@@ -15,21 +10,21 @@ export default async function NewChainPage() {
   const session = await requireRole("ADMIN", "/admin/organization/chains/new");
 
   return (
-    <DashboardShell user={session.user}>
-      <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-8 px-6 py-10">
-        <Button asChild className="w-fit" variant="outline">
+    <ErpShell user={session.user}>
+        <PageHeader
+          actions={
+          <Button asChild variant="outline">
           <Link href="/admin/organization/chains">Back to chains</Link>
         </Button>
-        <Card>
-          <CardHeader>
-            <CardTitle>New chain</CardTitle>
-            <CardDescription>Create a partner chain record.</CardDescription>
-          </CardHeader>
-          <CardContent>
+          }
+          description="Create the first level of the organization tree."
+          title="New Chain"
+        />
+        <div className="max-w-3xl">
+          <SectionCard description="Use a short operational name." title="Chain Details">
             <ChainForm />
-          </CardContent>
-        </Card>
-      </main>
-    </DashboardShell>
+          </SectionCard>
+        </div>
+    </ErpShell>
   );
 }

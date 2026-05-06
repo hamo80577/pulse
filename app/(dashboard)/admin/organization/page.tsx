@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { DashboardShell } from "@/components/layout/dashboard-shell";
+import { ErpShell } from "@/components/layout/erp-shell";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { ActionCard } from "@/components/ui/action-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { MetricCard } from "@/components/ui/metric-card";
+import { SectionCard } from "@/components/ui/section-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { AssignmentForm } from "@/features/organization/components/assignment-form";
 import { ManagerRelationForm } from "@/features/organization/components/manager-relation-form";
 import { endManagerRelationAction } from "@/features/organization/actions";
@@ -30,18 +29,16 @@ export default async function OrganizationPage() {
     ]);
 
   return (
-    <DashboardShell user={session.user}>
-      <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-6 py-10">
-        <section className="flex flex-col gap-3">
-          <h1 className="text-3xl font-semibold tracking-normal text-foreground">
-            Organization
-          </h1>
-          <p className="max-w-3xl text-base leading-7 text-muted-foreground">
-            Manage Pulse chains, branches, branch assignment history, and manager
-            relations. User creation and employee profiles begin in the user
-            management phase.
-          </p>
-        </section>
+    <ErpShell user={session.user}>
+      <PageHeader
+        actions={
+          <Button asChild>
+            <Link href="/admin/organization/tree">Review tree</Link>
+          </Button>
+        }
+        description="Build the real organization structure before employee profiles and workflows."
+        title="Organization Workbench"
+      />
 
         <section className="grid gap-4 md:grid-cols-4">
           <MetricCard label="Chains" value={overview.chainCount} />
@@ -56,90 +53,85 @@ export default async function OrganizationPage() {
           />
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Chains</CardTitle>
-              <CardDescription>Create and update partner chains.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex gap-3">
-              <Button asChild>
-                <Link href="/admin/organization/chains/new">New chain</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/admin/organization/chains">View chains</Link>
-              </Button>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Branches</CardTitle>
-              <CardDescription>Create branches under active chains.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex gap-3">
-              <Button asChild>
-                <Link href="/admin/organization/branches/new">New branch</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/admin/organization/branches">View branches</Link>
-              </Button>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Tree</CardTitle>
-              <CardDescription>Review chain, branch, and user placement.</CardDescription>
-            </CardHeader>
-            <CardContent>
+        <section className="grid gap-4 md:grid-cols-5">
+          <WorkbenchStep done={overview.chainCount > 0} label="1. Chains" />
+          <WorkbenchStep done={overview.branchCount > 0} label="2. Branches" />
+          <WorkbenchStep
+            done={overview.activeAssignmentCount > 0}
+            label="3. Assign People"
+          />
+          <WorkbenchStep
+            done={overview.activeRelationCount > 0}
+            label="4. Manager Relations"
+          />
+          <WorkbenchStep done={overview.chainCount > 0} label="5. Review Tree" />
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-3">
+          <ActionCard
+            action={
+              <div className="flex gap-2">
+                <Button asChild>
+                  <Link href="/admin/organization/chains/new">New chain</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/admin/organization/chains">View</Link>
+                </Button>
+              </div>
+            }
+            description="Create the partner chain first."
+            title="Chains"
+          />
+          <ActionCard
+            action={
+              <div className="flex gap-2">
+                <Button asChild>
+                  <Link href="/admin/organization/branches/new">New branch</Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/admin/organization/branches">View</Link>
+                </Button>
+              </div>
+            }
+            description="Attach branches to active chains."
+            title="Branches"
+          />
+          <ActionCard
+            action={
               <Button asChild variant="outline">
                 <Link href="/admin/organization/tree">Open tree</Link>
               </Button>
-            </CardContent>
-          </Card>
+            }
+            description="Review active structure."
+            title="Review Tree"
+          />
         </section>
 
         <section className="grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Assign user to branch</CardTitle>
-              <CardDescription>
-                Assign existing active Pickers or Champs. New users are created
-                in the user management phase.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <SectionCard
+            description="Existing active Pickers and Champs only."
+            title="Assign People"
+          >
               <AssignmentForm
                 branches={assignmentOptions.branches}
                 users={assignmentOptions.users}
               />
-            </CardContent>
-          </Card>
+          </SectionCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Manager relation</CardTitle>
-              <CardDescription>
-                Link existing active users with supported manager relationships.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ManagerRelationForm users={managerOptions.users} />
-            </CardContent>
-          </Card>
+          <SectionCard
+            description="Supported role pairs only."
+            title="Manager Relations"
+          >
+            <ManagerRelationForm users={managerOptions.users} />
+          </SectionCard>
         </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Active manager relations</CardTitle>
-            <CardDescription>
-              End a relation to preserve history before creating a replacement.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <SectionCard
+          description="End a relation before creating a replacement."
+          title="Active Manager Relations"
+        >
             {activeRelations.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No active manager relations.
-              </p>
+              <EmptyState title="No active manager relations" />
             ) : (
               <div className="grid gap-3">
                 {activeRelations.map((relation) => (
@@ -155,6 +147,7 @@ export default async function OrganizationPage() {
                         {relation.relationType.replaceAll("_", " ")}
                       </p>
                     </div>
+                    <StatusBadge status={relation.status} />
                     <form action={endManagerRelationAction}>
                       <input name="relationId" type="hidden" value={relation.id} />
                       <Button size="sm" type="submit" variant="outline">
@@ -165,20 +158,16 @@ export default async function OrganizationPage() {
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
-      </main>
-    </DashboardShell>
+        </SectionCard>
+    </ErpShell>
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: number }) {
+function WorkbenchStep({ done, label }: { done: boolean; label: string }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardDescription>{label}</CardDescription>
-        <CardTitle>{value}</CardTitle>
-      </CardHeader>
-    </Card>
+    <div className="flex items-center justify-between rounded-md border bg-card px-3 py-2 text-sm">
+      <span className="font-medium">{label}</span>
+      <StatusBadge status={done ? "Ready" : "Open"} />
+    </div>
   );
 }

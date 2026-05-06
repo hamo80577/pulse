@@ -1,4 +1,4 @@
-import type { Role } from "@/lib/auth/types";
+import type { Role, UserStatus } from "@/lib/auth/types";
 import type {
   BranchAssignmentRoleInput,
   ManagerRelationTypeInput,
@@ -64,4 +64,20 @@ export function isManagerRelationRolePairAllowed(
     (managerRole === "OPERATIONS_MANAGER" ||
       managerRole === "SENIOR_OPERATIONS_MANAGER")
   );
+}
+
+export function isActiveOrganizationUser(user: {
+  status: UserStatus;
+  role: Role;
+}) {
+  return user.status === "ACTIVE" && (user.role === "PICKER" || user.role === "CHAMP");
+}
+
+export function isActiveBranchInActiveChain(branch: {
+  status: "ACTIVE" | "INACTIVE" | "ARCHIVED";
+  chain: {
+    status: "ACTIVE" | "INACTIVE" | "ARCHIVED";
+  };
+}) {
+  return branch.status === "ACTIVE" && branch.chain.status === "ACTIVE";
 }

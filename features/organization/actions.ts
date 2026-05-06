@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import type { Prisma } from "@/generated/prisma/client";
 import { createAuditLog } from "@/lib/audit/log";
 import { requireSession } from "@/lib/auth/session";
-import type { Role } from "@/lib/auth/types";
 import { prisma } from "@/lib/db/prisma";
 import {
   branchAssignmentInputSchema,
@@ -16,6 +15,8 @@ import {
 import {
   canMutateOrganization,
   hasDuplicateActivePrimaryAssignment,
+  isActiveBranchInActiveChain,
+  isActiveOrganizationUser,
   isAssignmentRoleCompatible,
   isManagerRelationRolePairAllowed,
 } from "./rules";
@@ -164,10 +165,10 @@ export async function createBranchAction(
 
   const chainExists = await prisma.chain.findUnique({
     where: { id: parsed.data.chainId },
-    select: { id: true },
+    select: { id: true, status: true },
   });
 
-  if (!chainExists) {
+  if (!chainExists || chainExists.status !== "ACTIVE") {
     return { error: "Select an existing active chain." };
   }
 
@@ -221,6 +222,15 @@ export async function updateBranchAction(
     return { error: "Branch was not found." };
   }
 
+  const selectedChain = await prisma.chain.findUnique({
+    where: { id: parsed.data.chainId },
+    select: { id: true, status: true },
+  });
+
+  if (!selectedChain || selectedChain.status !== "ACTIVE") {
+    return { error: "Select an existing active chain." };
+  }
+
   try {
     const branch = await prisma.branch.update({
       where: { id: branchId },
@@ -264,8 +274,26 @@ export async function createBranchAssignmentAction(
   }
 
   const [user, branch, existingAssignments] = await Promise.all([
-    prisma.user.findUnique({ where: { id: parsed.data.userId } }),
-    prisma.branch.findUnique({ where: { id: parsed.data.branchId } }),
+    prisma.user.findUnique({
+      where: { id: parsed.data.userId },
+      select: {
+        id: true,
+        role: true,
+        status: true,
+      },
+    }),
+    prisma.branch.findUnique({
+      where: { id: parsed.data.branchId },
+      select: {
+        id: true,
+        status: true,
+        chain: {
+          select: {
+            status: true,
+          },
+        },
+      },
+    }),
     prisma.branchAssignment.findMany({
       where: {
         userId: parsed.data.userId,
@@ -286,7 +314,15 @@ export async function createBranchAssignmentAction(
     return { error: "Select an existing user and branch." };
   }
 
-  if (!isAssignmentRoleCompatible(user.role as Role, parsed.data.roleAtBranch)) {
+  if (!isActiveOrganizationUser(user)) {
+    return { error: "Select an active Picker or Champ." };
+  }
+
+  if (!isActiveBranchInActiveChain(branch)) {
+    return { error: "Select an active branch under an active chain." };
+  }
+
+  if (!isAssignmentRoleCompatible(user.role, parsed.data.roleAtBranch)) {
     return { error: "Assignment role must match the selected user's role." };
   }
 
@@ -379,8 +415,22 @@ export async function createManagerRelationAction(
   }
 
   const [employee, manager, existingActiveRelation] = await Promise.all([
-    prisma.user.findUnique({ where: { id: parsed.data.employeeUserId } }),
-    prisma.user.findUnique({ where: { id: parsed.data.managerUserId } }),
+    prisma.user.findUnique({
+      where: { id: parsed.data.employeeUserId },
+      select: {
+        id: true,
+        role: true,
+        status: true,
+      },
+    }),
+    prisma.user.findUnique({
+      where: { id: parsed.data.managerUserId },
+      select: {
+        id: true,
+        role: true,
+        status: true,
+      },
+    }),
     prisma.managerRelation.findFirst({
       where: {
         employeeUserId: parsed.data.employeeUserId,
@@ -394,11 +444,15 @@ export async function createManagerRelationAction(
     return { error: "Select existing employee and manager users." };
   }
 
+  if (employee.status !== "ACTIVE" || manager.status !== "ACTIVE") {
+    return { error: "Employee and manager must both be active users." };
+  }
+
   if (
     !isManagerRelationRolePairAllowed(
       parsed.data.relationType,
-      employee.role as Role,
-      manager.role as Role,
+      employee.role,
+      manager.role,
     )
   ) {
     return { error: "Manager relation roles do not match the selected type." };

@@ -1,5 +1,12 @@
 import { prisma } from "@/lib/db/prisma";
 
+const safeUserSelect = {
+  id: true,
+  name: true,
+  role: true,
+  status: true,
+} as const;
+
 export async function getOrganizationOverview() {
   const [chainCount, branchCount, activeAssignmentCount, activeRelationCount] =
     await Promise.all([
@@ -62,8 +69,12 @@ export async function getBranchDetail(branchId: string) {
       chain: true,
       assignments: {
         include: {
-          user: true,
-          createdBy: true,
+          user: {
+            select: safeUserSelect,
+          },
+          createdBy: {
+            select: safeUserSelect,
+          },
         },
         orderBy: [{ status: "asc" }, { startDate: "desc" }],
       },
@@ -79,7 +90,9 @@ export async function getOrganizationTree() {
           assignments: {
             where: { status: "ACTIVE" },
             include: {
-              user: true,
+              user: {
+                select: safeUserSelect,
+              },
             },
             orderBy: [{ roleAtBranch: "asc" }, { user: { name: "asc" } }],
           },
@@ -114,6 +127,7 @@ export async function getAssignmentFormOptions() {
           in: ["PICKER", "CHAMP"],
         },
       },
+      select: safeUserSelect,
       orderBy: [{ role: "asc" }, { name: "asc" }],
     }),
   ]);
@@ -135,6 +149,7 @@ export async function getManagerRelationFormOptions() {
         ],
       },
     },
+    select: safeUserSelect,
     orderBy: [{ role: "asc" }, { name: "asc" }],
   });
 
@@ -145,8 +160,12 @@ export async function getActiveManagerRelations() {
   return prisma.managerRelation.findMany({
     where: { status: "ACTIVE" },
     include: {
-      employee: true,
-      manager: true,
+      employee: {
+        select: safeUserSelect,
+      },
+      manager: {
+        select: safeUserSelect,
+      },
     },
     orderBy: [{ startDate: "desc" }],
   });

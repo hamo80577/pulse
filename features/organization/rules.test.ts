@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   canMutateOrganization,
   hasDuplicateActivePrimaryAssignment,
+  isActiveBranchInActiveChain,
+  isActiveOrganizationUser,
   isAssignmentRoleCompatible,
   isManagerRelationRolePairAllowed,
 } from "./rules";
@@ -47,5 +49,33 @@ describe("organization rules", () => {
       isManagerRelationRolePairAllowed("AREA_MANAGER_TO_CHAMP", "CHAMP", "AREA_MANAGER"),
     ).toBe(true);
     expect(isManagerRelationRolePairAllowed("CHAMP_TO_PICKER", "CHAMP", "PICKER")).toBe(false);
+  });
+
+  it("requires assignable users to be active pickers or champs", () => {
+    expect(isActiveOrganizationUser({ status: "ACTIVE", role: "PICKER" })).toBe(true);
+    expect(isActiveOrganizationUser({ status: "ACTIVE", role: "CHAMP" })).toBe(true);
+    expect(isActiveOrganizationUser({ status: "ACTIVE", role: "ADMIN" })).toBe(false);
+    expect(isActiveOrganizationUser({ status: "SUSPENDED", role: "PICKER" })).toBe(false);
+  });
+
+  it("requires active branches under active chains for assignments", () => {
+    expect(
+      isActiveBranchInActiveChain({
+        status: "ACTIVE",
+        chain: { status: "ACTIVE" },
+      }),
+    ).toBe(true);
+    expect(
+      isActiveBranchInActiveChain({
+        status: "INACTIVE",
+        chain: { status: "ACTIVE" },
+      }),
+    ).toBe(false);
+    expect(
+      isActiveBranchInActiveChain({
+        status: "ACTIVE",
+        chain: { status: "ARCHIVED" },
+      }),
+    ).toBe(false);
   });
 });

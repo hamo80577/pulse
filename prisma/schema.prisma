@@ -54,6 +54,14 @@ enum ManagerRelationStatus {
   ENDED
 }
 
+enum EmploymentStatus {
+  ACTIVE
+  ON_LEAVE
+  ON_HOLD
+  RESIGNED
+  TERMINATED
+}
+
 model User {
   id                         String             @id @default(cuid())
   name                       String
@@ -74,6 +82,7 @@ model User {
   branchAssignmentsCreated   BranchAssignment[] @relation("BranchAssignmentCreator")
   managerRelationsAsEmployee ManagerRelation[]  @relation("ManagerRelationEmployee")
   managerRelationsAsManager  ManagerRelation[]  @relation("ManagerRelationManager")
+  employeeProfile            EmployeeProfile?
 }
 
 model Session {
@@ -120,6 +129,25 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([action])
   @@index([createdAt])
+}
+
+model EmployeeProfile {
+  id               String           @id @default(cuid())
+  userId           String           @unique
+  nationalId       String?          @unique
+  shopperId        String?          @unique
+  ibsId            String?          @unique
+  address          String?
+  personalPhotoUrl String?
+  idCardFrontUrl   String?
+  idCardBackUrl    String?
+  hireDate         DateTime?
+  employmentStatus EmploymentStatus @default(ACTIVE)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  user             User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([employmentStatus])
 }
 
 model Chain {

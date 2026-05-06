@@ -26,8 +26,8 @@ export function getAdminNavItems(role: Role): NavItem[] {
     },
     {
       label: "Workforce",
+      href: "/admin/workforce",
       icon: "workforce",
-      comingSoon: true,
     },
     {
       label: "Organization",
@@ -51,6 +51,16 @@ export function getAdminNavItems(role: Role): NavItem[] {
     },
     {
       label: "Audit Logs",
+      icon: "audit",
+      comingSoon: true,
+    },
+    {
+      label: "Reports",
+      icon: "audit",
+      comingSoon: true,
+    },
+    {
+      label: "Data Imports",
       icon: "audit",
       comingSoon: true,
     },

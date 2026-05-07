@@ -1,8 +1,5 @@
 import Link from "next/link";
 import { ErpShell } from "@/components/layout/erp-shell";
-import { PageHeader } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
-import { SectionCard } from "@/components/ui/section-card";
 import { UserFilters } from "@/features/users/components/user-filters";
 import { UserList } from "@/features/users/components/user-list";
 import { getUsers } from "@/features/users/queries";
@@ -19,21 +16,30 @@ export default async function WorkforceUsersPage({
 
   return (
     <ErpShell user={session.user}>
-      <PageHeader
-        actions={
-          <Button asChild>
-            <Link href="/admin/workforce/users/new">New user</Link>
-          </Button>
-        }
-        description="Safe user list with profile external IDs."
-        title="Users"
-      />
-      <SectionCard title="Filters">
+      <div className="flex border-b border-outline-variant">
+        <Link
+          className="flex-1 border-b-2 border-secondary-action px-3 py-3 text-center text-sm font-medium text-secondary-action sm:px-6"
+          href="/admin/workforce/users"
+        >
+          All Users
+        </Link>
+        <Link
+          className="flex-1 border-b-2 border-transparent px-3 py-3 text-center text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low hover:text-secondary-action sm:px-6"
+          href="/admin/workforce/users?status=PENDING_SETUP"
+        >
+          Pending Approval
+        </Link>
+        <Link
+          className="flex-1 border-b-2 border-transparent px-3 py-3 text-center text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low hover:text-secondary-action sm:px-6"
+          href="/admin/workforce/users?status=DELETED"
+        >
+          Archived
+        </Link>
+      </div>
+      <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-5 shadow-[var(--ambient-shadow)] lg:p-6">
         <UserFilters role={filters.role} search={filters.search} status={filters.status} />
-      </SectionCard>
-      <SectionCard description={`${users.length} users found.`} title="User List">
-        <UserList users={users} />
-      </SectionCard>
+      </section>
+      <UserList users={users} />
     </ErpShell>
   );
 }

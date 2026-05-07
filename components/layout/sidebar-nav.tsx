@@ -30,26 +30,26 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="ERP navigation" className="flex flex-col gap-1">
+    <nav aria-label="ERP navigation" className="flex flex-col gap-3">
       {items.map((item) => {
         const Icon = iconMap[item.icon];
         const active =
-          item.href === "/admin/organization"
-            ? pathname.startsWith("/admin/organization")
-            : pathname === item.href;
+          item.href === "/admin" || item.href === "/super-admin"
+            ? pathname === item.href
+            : Boolean(
+                item.href &&
+                  (pathname === item.href || pathname.startsWith(`${item.href}/`)),
+              );
 
         if (!item.href) {
           return (
             <div
-              className="flex h-10 items-center justify-between gap-3 rounded-md px-3 text-sm text-muted-foreground"
+              className="flex h-12 items-center justify-between gap-4 rounded-md px-4 text-base text-on-surface-variant"
               key={item.label}
             >
-              <span className="flex min-w-0 items-center gap-3">
-                <Icon aria-hidden="true" className="size-4" />
+              <span className="flex min-w-0 items-center gap-4">
+                <Icon aria-hidden="true" className="size-6" />
                 <span className="truncate">{item.label}</span>
-              </span>
-              <span className="rounded-sm border px-1.5 py-0.5 text-[10px] uppercase tracking-normal">
-                Soon
               </span>
             </div>
           );
@@ -58,13 +58,14 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
         return (
           <Link
             className={cn(
-              "flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
-              active && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+              "flex h-12 items-center gap-4 rounded-md px-4 text-base text-on-surface transition-all duration-200 hover:bg-surface-container-low hover:text-secondary-action focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-action",
+              active &&
+                "border-r-2 border-secondary-action bg-surface-container-low font-semibold text-secondary-action hover:bg-surface-container-low hover:text-secondary-action",
             )}
             href={item.href}
             key={item.label}
           >
-            <Icon aria-hidden="true" className="size-4" />
+            <Icon aria-hidden="true" className="size-6" />
             <span className="truncate">{item.label}</span>
           </Link>
         );

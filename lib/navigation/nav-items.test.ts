@@ -25,12 +25,12 @@ describe("ERP navigation items", () => {
     expect(superAdminSettings?.comingSoon).toBeUndefined();
   });
 
-  it("links Workforce to the implemented admin workforce route", () => {
-    const workforce = getAdminNavItems("SUPER_ADMIN").find(
-      (item) => item.label === "Workforce",
+  it("links Users to the implemented admin user management route", () => {
+    const users = getAdminNavItems("SUPER_ADMIN").find(
+      (item) => item.label === "Users",
     );
 
-    expect(workforce?.href).toBe("/admin/workforce");
-    expect(workforce?.comingSoon).toBeUndefined();
+    expect(users?.href).toBe("/admin/workforce/users");
+    expect(users?.comingSoon).toBeUndefined();
   });
 });

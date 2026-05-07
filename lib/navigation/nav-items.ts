@@ -25,42 +25,17 @@ export function getAdminNavItems(role: Role): NavItem[] {
       icon: "dashboard",
     },
     {
-      label: "Workforce",
-      href: "/admin/workforce",
+      label: "Users",
+      href: "/admin/workforce/users",
       icon: "workforce",
     },
     {
-      label: "Organization",
+      label: "Roles",
       href: "/admin/organization",
       icon: "organization",
     },
     {
-      label: "Requests",
-      href: "/requests",
-      icon: "requests",
-    },
-    {
-      label: "Approvals",
-      href: "/admin/approvals",
-      icon: "approvals",
-    },
-    {
-      label: "Notifications",
-      icon: "notifications",
-      comingSoon: true,
-    },
-    {
-      label: "Audit Logs",
-      icon: "audit",
-      comingSoon: true,
-    },
-    {
       label: "Reports",
-      icon: "audit",
-      comingSoon: true,
-    },
-    {
-      label: "Data Imports",
       icon: "audit",
       comingSoon: true,
     },

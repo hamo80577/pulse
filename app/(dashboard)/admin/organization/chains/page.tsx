@@ -45,12 +45,7 @@ export default async function ChainsPage() {
                     <div>
                       <p className="font-medium">{chain.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {chain.code ?? "No code"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {chain.orderSystemChainId
-                          ? `Order ID: ${chain.orderSystemChainId}`
-                          : "No order-system ID"}
+                        Chain ID: {chain.orderSystemChainId}
                       </p>
                     </div>
                     <div className="text-right text-sm text-muted-foreground">

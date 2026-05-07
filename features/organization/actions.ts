@@ -65,13 +65,12 @@ export async function createChainAction(
   const session = await requireOrganizationMutationSession();
   const parsed = chainInputSchema.safeParse({
     name: getFormValue(formData, "name"),
-    code: getFormValue(formData, "code"),
     orderSystemChainId: getFormValue(formData, "orderSystemChainId"),
     status: getFormValue(formData, "status") || "ACTIVE",
   });
 
   if (!parsed.success) {
-    return { error: "Enter a valid chain name and status." };
+    return { error: "Enter a valid chain name, Chain ID, and status." };
   }
 
   let chainId = "";
@@ -90,7 +89,7 @@ export async function createChainAction(
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: "A chain with this name, code, or order-system ID already exists." };
+      return { error: "A chain with this name or Chain ID already exists." };
     }
 
     throw error;
@@ -108,7 +107,6 @@ export async function updateChainAction(
   const chainId = getFormValue(formData, "chainId");
   const parsed = chainInputSchema.safeParse({
     name: getFormValue(formData, "name"),
-    code: getFormValue(formData, "code"),
     orderSystemChainId: getFormValue(formData, "orderSystemChainId"),
     status: getFormValue(formData, "status") || "ACTIVE",
   });
@@ -138,7 +136,7 @@ export async function updateChainAction(
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: "A chain with this name, code, or order-system ID already exists." };
+      return { error: "A chain with this name or Chain ID already exists." };
     }
 
     throw error;
@@ -156,14 +154,13 @@ export async function createBranchAction(
   const parsed = branchInputSchema.safeParse({
     chainId: getFormValue(formData, "chainId"),
     name: getFormValue(formData, "name"),
-    code: getFormValue(formData, "code"),
     orderSystemBranchId: getFormValue(formData, "orderSystemBranchId"),
     address: getFormValue(formData, "address"),
     status: getFormValue(formData, "status") || "ACTIVE",
   });
 
   if (!parsed.success) {
-    return { error: "Enter valid branch details." };
+    return { error: "Enter valid branch details, including Branch ID." };
   }
 
   const chainExists = await prisma.chain.findUnique({
@@ -191,7 +188,7 @@ export async function createBranchAction(
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: "A branch with this name, code, or order-system ID already exists." };
+      return { error: "A branch with this name or Branch ID already exists." };
     }
 
     throw error;
@@ -210,7 +207,6 @@ export async function updateBranchAction(
   const parsed = branchInputSchema.safeParse({
     chainId: getFormValue(formData, "chainId"),
     name: getFormValue(formData, "name"),
-    code: getFormValue(formData, "code"),
     orderSystemBranchId: getFormValue(formData, "orderSystemBranchId"),
     address: getFormValue(formData, "address"),
     status: getFormValue(formData, "status") || "ACTIVE",
@@ -250,7 +246,7 @@ export async function updateBranchAction(
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
-      return { error: "A branch with this name, code, or order-system ID already exists." };
+      return { error: "A branch with this name or Branch ID already exists." };
     }
 
     throw error;

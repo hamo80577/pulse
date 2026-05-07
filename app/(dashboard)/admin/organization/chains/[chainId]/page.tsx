@@ -34,15 +34,11 @@ export default async function ChainDetailPage({
           <Link href="/admin/organization/chains">Back to chains</Link>
         </Button>
           }
-          description={
-            chain.orderSystemChainId
-              ? `${chain.code ?? "No code"} / Order ID: ${chain.orderSystemChainId}`
-              : chain.code ?? "No code"
-          }
+          description={`Chain ID: ${chain.orderSystemChainId}`}
           title={chain.name}
         />
         <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-          <SectionCard description="Update chain status or code." title="Chain Details">
+          <SectionCard description="Update chain identity and status." title="Chain Details">
               <ChainForm chain={chain} />
           </SectionCard>
           <SectionCard description="Branches assigned to this chain." title="Branches">

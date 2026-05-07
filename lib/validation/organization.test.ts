@@ -7,10 +7,9 @@ import {
 } from "./organization";
 
 describe("organization validation", () => {
-  it("requires a chain name and normalizes an optional code", () => {
+  it("requires a chain name and chain ID", () => {
     const parsed = chainInputSchema.safeParse({
       name: "  North Cairo  ",
-      code: " nc ",
       orderSystemChainId: " chain-42 ",
       status: "ACTIVE",
     });
@@ -18,22 +17,19 @@ describe("organization validation", () => {
     expect(parsed.success).toBe(true);
     expect(parsed.success ? parsed.data : null).toEqual({
       name: "North Cairo",
-      code: "NC",
       orderSystemChainId: "chain-42",
       status: "ACTIVE",
     });
   });
 
-  it("normalizes empty chain external IDs to null", () => {
+  it("rejects chains without a chain ID", () => {
     const parsed = chainInputSchema.safeParse({
       name: "North Cairo",
-      code: "",
       orderSystemChainId: "   ",
       status: "ACTIVE",
     });
 
-    expect(parsed.success).toBe(true);
-    expect(parsed.success ? parsed.data.orderSystemChainId : "failed").toBeNull();
+    expect(parsed.success).toBe(false);
   });
 
   it("rejects a branch without a chain", () => {
@@ -58,7 +54,7 @@ describe("organization validation", () => {
     expect(parsed.success ? parsed.data.orderSystemBranchId : null).toBe("branch-99");
   });
 
-  it("normalizes empty branch external IDs to null", () => {
+  it("rejects branches without a branch ID", () => {
     const parsed = branchInputSchema.safeParse({
       name: "Branch A",
       chainId: "chain_1",
@@ -66,8 +62,7 @@ describe("organization validation", () => {
       status: "ACTIVE",
     });
 
-    expect(parsed.success).toBe(true);
-    expect(parsed.success ? parsed.data.orderSystemBranchId : "failed").toBeNull();
+    expect(parsed.success).toBe(false);
   });
 
   it("accepts picker and champ branch assignments only", () => {

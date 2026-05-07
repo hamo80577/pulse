@@ -9,18 +9,8 @@ const managerRelationTypes = [
 ] as const;
 
 const requiredTrimmedString = z.string().trim().min(1);
-const optionalNormalizedCode = z
-  .string()
-  .trim()
-  .transform((value) => value.toUpperCase())
-  .optional()
-  .or(z.literal("").transform(() => undefined));
-const optionalExternalId = z
-  .string()
-  .trim()
-  .transform((value) => (value.length > 0 ? value : null))
-  .optional()
-  .or(z.literal("").transform(() => null));
+const requiredExternalId = z.string().trim().min(1, "Chain ID is required.");
+const requiredBranchExternalId = z.string().trim().min(1, "Branch ID is required.");
 
 const dateString = z.string().trim().refine((value) => !Number.isNaN(Date.parse(value)), {
   message: "Enter a valid date.",
@@ -28,16 +18,14 @@ const dateString = z.string().trim().refine((value) => !Number.isNaN(Date.parse(
 
 export const chainInputSchema = z.object({
   name: requiredTrimmedString,
-  code: optionalNormalizedCode,
-  orderSystemChainId: optionalExternalId,
+  orderSystemChainId: requiredExternalId,
   status: z.enum(organizationStatuses).default("ACTIVE"),
 });
 
 export const branchInputSchema = z.object({
   chainId: requiredTrimmedString,
   name: requiredTrimmedString,
-  code: optionalNormalizedCode,
-  orderSystemBranchId: optionalExternalId,
+  orderSystemBranchId: requiredBranchExternalId,
   address: z.string().trim().optional().or(z.literal("").transform(() => undefined)),
   status: z.enum(organizationStatuses).default("ACTIVE"),
 });

@@ -14,10 +14,10 @@ import type { UserDetail } from "../queries";
 type BranchOption = {
   id: string;
   name: string;
-  orderSystemBranchId: string | null;
+  orderSystemBranchId: string;
   chain: {
     name: string;
-    orderSystemChainId: string | null;
+    orderSystemChainId: string;
   };
 };
 
@@ -192,13 +192,9 @@ function EmployeeContext({ user }: { user: UserDetail }) {
 
 function formatBranchLabel(branch: BranchOption) {
   const ids = [
-    branch.chain.orderSystemChainId
-      ? `Chain ID ${branch.chain.orderSystemChainId}`
-      : null,
-    branch.orderSystemBranchId
-      ? `Branch ID ${branch.orderSystemBranchId}`
-      : null,
-  ].filter(Boolean);
+    `Chain ID ${branch.chain.orderSystemChainId}`,
+    `Branch ID ${branch.orderSystemBranchId}`,
+  ];
 
   return `${branch.chain.name} / ${branch.name}${ids.length > 0 ? ` (${ids.join(" / ")})` : ""}`;
 }

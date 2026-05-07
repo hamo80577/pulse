@@ -5,6 +5,7 @@ import { logoutAction } from "@/features/auth/actions";
 import type { SessionUser } from "@/lib/auth/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { BackButton } from "./back-button";
 
 export function DashboardShell({
   children,
@@ -24,6 +25,7 @@ export function DashboardShell({
             <Badge variant="secondary">{user.role.replaceAll("_", " ")}</Badge>
           </div>
           <div className="flex items-center gap-4">
+            <BackButton />
             <span className="hidden text-sm text-muted-foreground md:inline">
               {user.name}
             </span>

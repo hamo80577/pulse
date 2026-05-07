@@ -40,11 +40,7 @@ export default async function BranchDetailPage({
           <Link href="/admin/organization/branches">Back to branches</Link>
         </Button>
           }
-          description={
-            branch.orderSystemBranchId
-              ? `${branch.chain.name} / Order ID: ${branch.orderSystemBranchId}`
-              : branch.chain.name
-          }
+          description={`${branch.chain.name} / Branch ID: ${branch.orderSystemBranchId}`}
           title={branch.name}
         />
         <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">

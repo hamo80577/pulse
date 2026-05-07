@@ -198,15 +198,13 @@ model EmployeeProfile {
 model Chain {
   id                 String             @id @default(cuid())
   name               String
-  code               String?
-  orderSystemChainId String?            @unique
+  orderSystemChainId String             @unique
   status             OrganizationStatus @default(ACTIVE)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   branches           Branch[]
 
   @@unique([name])
-  @@unique([code])
   @@index([status])
 }
 
@@ -214,8 +212,7 @@ model Branch {
   id                  String             @id @default(cuid())
   chainId             String
   name                String
-  code                String?
-  orderSystemBranchId String?            @unique
+  orderSystemBranchId String             @unique
   address             String?
   status              OrganizationStatus @default(ACTIVE)
   createdAt           DateTime           @default(now())
@@ -224,7 +221,6 @@ model Branch {
   assignments         BranchAssignment[]
 
   @@unique([chainId, name])
-  @@unique([code])
   @@index([chainId])
   @@index([status])
 }

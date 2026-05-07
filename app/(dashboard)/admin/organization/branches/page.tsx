@@ -48,9 +48,7 @@ export default async function BranchesPage() {
                         {branch.chain.name}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {branch.orderSystemBranchId
-                          ? `Order ID: ${branch.orderSystemBranchId}`
-                          : "No order-system ID"}
+                        Branch ID: {branch.orderSystemBranchId}
                       </p>
                     </div>
                     <div className="text-right text-sm text-muted-foreground">

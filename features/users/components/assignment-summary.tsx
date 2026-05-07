@@ -221,11 +221,6 @@ function formatDate(value: Date | null) {
   return value ? value.toISOString().slice(0, 10) : "Current";
 }
 
-function formatOrderIds(chainId: string | null, branchId: string | null) {
-  const ids = [
-    chainId ? `Order System Chain ID: ${chainId}` : null,
-    branchId ? `Order System Branch ID: ${branchId}` : null,
-  ].filter(Boolean);
-
-  return ids.length > 0 ? ids.join(" / ") : "No order-system IDs";
+function formatOrderIds(chainId: string, branchId: string) {
+  return `Chain ID: ${chainId} / Branch ID: ${branchId}`;
 }
